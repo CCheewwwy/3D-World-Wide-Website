@@ -9,576 +9,398 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-    :root {
-        --bg-dark: #020617;
-        --bg-card: #020617;
-        --accent: #4f46e5;
-        --accent-soft: rgba(79, 70, 229, 0.25);
-        --accent-strong: rgba(79, 70, 229, 0.6);
-        --text-main: #e5e7eb;
-        --text-muted: #9ca3af;
-        --danger: #ef4444;
-        --success: #22c55e;
-    }
+/* ------------------------------ */
+/* PREMIUM UI THEME + ANIMATIONS */
+/* ------------------------------ */
 
-    * {
-        box-sizing: border-box;
-        transition: 0.2s ease;
-    }
+:root {
+    --bg-dark: #020617;
+    --bg-card: #020617;
+    --accent: #4f46e5;
+    --accent-soft: rgba(79, 70, 229, 0.25);
+    --accent-strong: rgba(79, 70, 229, 0.6);
+    --text-main: #e5e7eb;
+    --text-muted: #9ca3af;
+    --danger: #ef4444;
+    --success: #22c55e;
+}
 
-    body {
-        margin: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
-        background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #000 100%);
-        color: var(--text-main);
-        overflow: hidden;
-    }
+* {
+    box-sizing: border-box;
+    transition: 0.2s ease;
+}
 
-    /* LOGIN SCREEN */
-    #login-screen {
-        display: flex;
-        height: 100vh;
-        align-items: center;
-        justify-content: center;
-        background:
-            radial-gradient(circle at top left, rgba(79, 70, 229, 0.35), transparent 55%),
-            radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.25), transparent 55%),
-            #020617;
-        color: white;
-    }
+body {
+    margin: 0;
+    font-family: "Inter", system-ui, sans-serif;
+    background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #000 100%);
+    color: var(--text-main);
+    overflow: hidden;
+}
 
-    #login-box {
-        background: radial-gradient(circle at top, #111827, #020617);
-        padding: 32px 30px 28px;
-        border-radius: 18px;
-        width: 340px;
-        box-shadow:
-            0 0 0 1px rgba(148, 163, 184, 0.2),
-            0 24px 60px rgba(15, 23, 42, 0.9);
-        position: relative;
-        overflow: hidden;
-        animation: floatIn 0.6s ease-out;
-    }
+/* ------------------------------ */
+/* LOGIN SCREEN */
+/* ------------------------------ */
 
-    #login-box::before {
-        content: "";
-        position: absolute;
-        inset: -40%;
-        background:
-            conic-gradient(from 180deg, rgba(79, 70, 229, 0.35), transparent, rgba(16, 185, 129, 0.35), transparent, rgba(79, 70, 229, 0.35));
-        opacity: 0.35;
-        filter: blur(32px);
-        z-index: -1;
-        animation: spinSlow 18s linear infinite;
-    }
+#login-screen {
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at top left, rgba(79, 70, 229, 0.35), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.25), transparent 55%),
+        #020617;
+    color: white;
+    opacity: 1;
+    animation: fadeIn 0.8s ease-out;
+}
 
-    #login-box h2 {
-        margin: 0 0 6px;
-        font-size: 22px;
-        letter-spacing: 0.04em;
-    }
+#login-screen.fade-out {
+    animation: fadeOut 0.6s ease forwards;
+}
 
-    #login-subtitle {
-        margin: 0 0 18px;
-        font-size: 13px;
-        color: var(--text-muted);
-    }
+#login-box {
+    background: radial-gradient(circle at top, #111827, #020617);
+    padding: 32px 30px 28px;
+    border-radius: 18px;
+    width: 340px;
+    box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.2),
+        0 24px 60px rgba(15, 23, 42, 0.9);
+    animation: floatIn 0.6s ease-out;
+}
 
-    #login-box input {
-        width: 100%;
-        padding: 11px 12px;
-        margin-top: 10px;
-        border-radius: 10px;
-        border: 1px solid rgba(148, 163, 184, 0.4);
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--text-main);
-        font-size: 14px;
-        outline: none;
-    }
+#login-box.shake {
+    animation: shake 0.4s ease;
+}
 
-    #login-box input:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.6);
-        background: rgba(15, 23, 42, 1);
-    }
+#login-box input {
+    width: 100%;
+    padding: 11px 12px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: rgba(15, 23, 42, 0.9);
+    color: var(--text-main);
+}
 
-    #login-box button {
-        width: 100%;
-        padding: 11px;
-        margin-top: 18px;
-        background: linear-gradient(135deg, #4f46e5, #22c55e);
-        border: none;
-        color: white;
-        border-radius: 999px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 14px;
-        box-shadow:
-            0 12px 30px rgba(79, 70, 229, 0.45),
-            0 0 0 1px rgba(15, 23, 42, 0.9);
-        transform-origin: center;
-    }
+#login-box button {
+    width: 100%;
+    padding: 11px;
+    margin-top: 18px;
+    background: linear-gradient(135deg, #4f46e5, #22c55e);
+    border: none;
+    color: white;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+}
 
-    #login-box button:hover {
-        transform: translateY(-1px) scale(1.02);
-        box-shadow:
-            0 16px 40px rgba(79, 70, 229, 0.6),
-            0 0 0 1px rgba(15, 23, 42, 0.9);
-    }
+/* ------------------------------ */
+/* APP LAYOUT */
+/* ------------------------------ */
 
-    #login-box button:active {
-        transform: translateY(0) scale(0.99);
-        box-shadow:
-            0 8px 20px rgba(79, 70, 229, 0.4),
-            0 0 0 1px rgba(15, 23, 42, 0.9);
-    }
+#app {
+    display: none;
+    height: 100vh;
+    display: flex;
+    opacity: 0;
+}
 
-    #login-error {
-        min-height: 18px;
-        margin-top: 10px;
-        font-size: 12px;
-        color: var(--danger);
-    }
+#app.fade-in {
+    animation: fadeIn 0.8s ease forwards;
+}
 
-    /* APP LAYOUT */
-    #app {
-        display: none;
-        height: 100vh;
-        display: flex;
-        background: radial-gradient(circle at top, #020617, #000);
-    }
+/* ------------------------------ */
+/* SIDEBAR */
+/* ------------------------------ */
 
-    /* SIDEBAR */
-    #sidebar {
-        width: 250px;
-        background: radial-gradient(circle at top, #020617, #020617 40%, #000 100%);
-        color: white;
-        padding: 20px 18px;
-        box-shadow:
-            4px 0 24px rgba(15, 23, 42, 0.9),
-            0 0 0 1px rgba(15, 23, 42, 0.9);
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
+#sidebar {
+    width: 250px;
+    background: #020617;
+    color: white;
+    padding: 20px 18px;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-40px);
+    opacity: 0;
+}
 
-    #sidebar-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 4px 4px 18px;
-        border-bottom: 1px solid rgba(31, 41, 55, 0.9);
-        margin-bottom: 6px;
-    }
+#sidebar.slide-in {
+    animation: slideIn 0.6s ease forwards;
+}
 
-    #sidebar-logo {
-        width: 32px;
-        height: 32px;
-        border-radius: 999px;
-        background: radial-gradient(circle at 30% 0, #22c55e, #4f46e5);
-        box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-size: 16px;
-    }
+.nav-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
 
-    #sidebar-title {
-        display: flex;
-        flex-direction: column;
-    }
+.nav-item:hover {
+    background: rgba(255,255,255,0.05);
+    color: white;
+}
 
-    #sidebar-title-main {
-        font-size: 16px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-    }
+.nav-item.active {
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
 
-    #sidebar-title-sub {
-        font-size: 11px;
-        color: var(--text-muted);
-    }
+/* ------------------------------ */
+/* CONTENT AREA */
+/* ------------------------------ */
 
-    .nav-group-label {
-        margin-top: 6px;
-        margin-bottom: 4px;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--text-muted);
-        padding: 0 4px;
-    }
+#content {
+    flex: 1;
+    padding: 26px;
+    overflow-y: auto;
+}
 
-    .nav-item {
-        padding: 10px 12px;
-        cursor: pointer;
-        border-radius: 10px;
-        font-size: 14px;
-        color: var(--text-muted);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        position: relative;
-        overflow: hidden;
-    }
+#content-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #0f172a;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 0 0 1px rgba(31,41,55,0.9), 0 24px 60px rgba(0,0,0,0.4);
+    opacity: 0;
+    transform: translateY(20px);
+}
 
-    .nav-item::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(90deg, rgba(79, 70, 229, 0.18), transparent);
-        opacity: 0;
-    }
+#content-inner.fade-up {
+    animation: fadeUp 0.6s ease forwards;
+}
 
-    .nav-item:hover::before {
-        opacity: 1;
-    }
+/* ------------------------------ */
+/* TABLES */
+/* ------------------------------ */
 
-    .nav-item:hover {
-        color: var(--text-main);
-        transform: translateX(2px);
-        background: rgba(15, 23, 42, 0.9);
-    }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    background: rgba(15, 23, 42, 0.96);
+    border-radius: 14px;
+    overflow: hidden;
+}
 
-    .nav-item.active {
-        background: rgba(15, 23, 42, 0.95);
-        color: white;
-        box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.7);
-    }
+table th {
+    background: #1e3a8a;
+    color: white;
+    padding: 11px;
+}
 
-    .nav-item-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 999px;
-        background: rgba(148, 163, 184, 0.7);
-    }
+table td {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
 
-    .nav-item.active .nav-item-dot {
-        background: #4f46e5;
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.35);
-    }
+table tr:hover {
+    background: rgba(255,255,255,0.05);
+}
 
-    .nav-spacer {
-        flex: 1;
-    }
+/* ------------------------------ */
+/* BUTTONS */
+/* ------------------------------ */
 
-    /* MAIN CONTENT */
-    #content {
-        flex: 1;
-        padding: 26px 26px 22px;
-        overflow-y: auto;
-        position: relative;
-    }
+.btn-small {
+    padding: 6px 10px;
+    font-size: 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    border: none;
+}
 
-    #content-inner {
-        max-width: 1100px;
-        margin: 0 auto;
-        background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.18), transparent 55%),
-                    radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.18), transparent 55%),
-                    #020617;
-        border-radius: 18px;
-        padding: 22px 22px 18px;
-        box-shadow:
-            0 0 0 1px rgba(31, 41, 55, 0.9),
-            0 24px 60px rgba(15, 23, 42, 0.9);
-        animation: fadeIn 0.35s ease-out;
-    }
+.btn-complete {
+    background: rgba(16,185,129,0.15);
+    color: #6ee7b7;
+}
 
-    #content-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 14px;
-    }
+.btn-deliver {
+    background: rgba(234,179,8,0.15);
+    color: #fde68a;
+}
 
-    #content-title {
-        font-size: 20px;
-        font-weight: 600;
-    }
+.btn-delete {
+    background: rgba(239,68,68,0.15);
+    color: #fca5a5;
+}
 
-    #content-subtitle {
-        font-size: 12px;
-        color: var(--text-muted);
-    }
+.btn-delete:hover {
+    background: rgba(239,68,68,0.25);
+}
 
-    #content-pill {
-        font-size: 11px;
-        padding: 4px 10px;
-        border-radius: 999px;
-        background: rgba(15, 23, 42, 0.9);
-        border: 1px solid rgba(148, 163, 184, 0.5);
-        color: var(--text-muted);
-    }
+/* ------------------------------ */
+/* ANIMATIONS */
+/* ------------------------------ */
 
-    /* FORM ELEMENTS */
-    input, select, textarea {
-        width: 100%;
-        padding: 10px 11px;
-        margin-top: 10px;
-        border-radius: 10px;
-        border: 1px solid rgba(148, 163, 184, 0.5);
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--text-main);
-        font-size: 13px;
-        outline: none;
-    }
+@keyframes floatIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
-    input:focus, select:focus, textarea:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.7);
-        background: rgba(15, 23, 42, 1);
-    }
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 
-    textarea {
-        min-height: 80px;
-        resize: vertical;
-    }
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
 
-    button {
-        padding: 9px 16px;
-        background: linear-gradient(135deg, #4f46e5, #22c55e);
-        border: none;
-        color: white;
-        border-radius: 999px;
-        cursor: pointer;
-        margin-top: 12px;
-        font-weight: 600;
-        font-size: 13px;
-        box-shadow: 0 10px 26px rgba(79, 70, 229, 0.5);
-        transform-origin: center;
-    }
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    button:hover {
-        transform: translateY(-1px) scale(1.03);
-        box-shadow: 0 16px 40px rgba(79, 70, 229, 0.7);
-    }
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+}
 
-    button:active {
-        transform: translateY(0) scale(0.98);
-        box-shadow: 0 8px 18px rgba(79, 70, 229, 0.45);
-    }
-
-    .btn-small {
-        padding: 6px 10px;
-        font-size: 11px;
-        border-radius: 999px;
-    }
-
-    .btn-complete {
-        background: rgba(16, 185, 129, 0.12);
-        color: #6ee7b7;
-        border: 1px solid rgba(16, 185, 129, 0.7);
-        box-shadow: none;
-    }
-
-    .btn-complete:hover {
-        background: rgba(16, 185, 129, 0.2);
-        box-shadow: 0 10px 26px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn-deliver {
-        background: rgba(234, 179, 8, 0.12);
-        color: #fde68a;
-        border: 1px solid rgba(234, 179, 8, 0.7);
-        box-shadow: none;
-    }
-
-    .btn-deliver:hover {
-        background: rgba(234, 179, 8, 0.2);
-        box-shadow: 0 10px 26px rgba(234, 179, 8, 0.4);
-    }
-
-    /* TABLES */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 16px;
-        background: rgba(15, 23, 42, 0.96);
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow:
-            0 0 0 1px rgba(31, 41, 55, 0.9),
-            0 18px 40px rgba(15, 23, 42, 0.9);
-        font-size: 13px;
-    }
-
-    table th {
-        background: linear-gradient(90deg, rgba(15, 23, 42, 1), rgba(30, 64, 175, 0.9));
-        color: #e5e7eb;
-        padding: 11px 10px;
-        text-align: left;
-        border-bottom: 1px solid rgba(30, 64, 175, 0.8);
-        font-weight: 500;
-    }
-
-    table td {
-        padding: 10px 10px;
-        border-bottom: 1px solid rgba(31, 41, 55, 0.9);
-        color: #d1d5db;
-    }
-
-    table tr:last-child td {
-        border-bottom: none;
-    }
-
-    table tr:hover {
-        background: rgba(15, 23, 42, 0.9);
-    }
-
-    .status-pill {
-        display: inline-flex;
-        align-items: center;
-        padding: 3px 9px;
-        border-radius: 999px;
-        font-size: 11px;
-        background: rgba(15, 23, 42, 0.95);
-        border: 1px solid rgba(148, 163, 184, 0.6);
-        color: var(--text-muted);
-    }
-
-    .status-pill.active {
-        border-color: rgba(59, 130, 246, 0.9);
-        color: #60a5fa;
-    }
-
-    .status-pill.completed {
-        border-color: rgba(16, 185, 129, 0.9);
-        color: #6ee7b7;
-    }
-
-    .status-pill.delivered {
-        border-color: rgba(234, 179, 8, 0.9);
-        color: #facc15;
-    }
-
-    /* ANIMATIONS */
-    @keyframes floatIn {
-        from { opacity: 0; transform: translateY(12px) scale(0.98); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(6px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes spinSlow {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    50% { transform: translateX(6px); }
+    75% { transform: translateX(-6px); }
+    100% { transform: translateX(0); }
+}
 </style>
 </head>
 <body>
 
+<!-- ------------------------------ -->
 <!-- LOGIN SCREEN -->
+<!-- ------------------------------ -->
+
 <div id="login-screen">
     <div id="login-box">
         <h2>3D World Wide Admin</h2>
-        <p id="login-subtitle">Secure access to your order management dashboard.</p>
+        <p style="color:#9ca3af;margin-bottom:10px;">Secure access to your dashboard</p>
+
         <input id="login-email" type="email" placeholder="Admin email">
         <input id="login-password" type="password" placeholder="Password">
+
         <button onclick="login()">Sign in</button>
-        <p id="login-error"></p>
+
+        <p id="login-error" style="color:#22c55e;font-size:12px;"></p>
     </div>
 </div>
 
+<!-- ------------------------------ -->
 <!-- APP -->
+<!-- ------------------------------ -->
+
 <div id="app">
     <div id="sidebar">
-        <div id="sidebar-header">
-            <div id="sidebar-logo">3D</div>
-            <div id="sidebar-title">
-                <span id="sidebar-title-main">3D World Wide</span>
-                <span id="sidebar-title-sub">Admin Dashboard</span>
-            </div>
-        </div>
+        <h3>3D Admin</h3>
+        <p id="sidebar-user-email" style="font-size:12px;color:#9ca3af;margin-top:-10px;margin-bottom:20px;"></p>
 
-        <div class="nav-group-label">Orders</div>
-        <div class="nav-item active" data-page="active" onclick="showPage('active', this)">
-            <div class="nav-item-dot"></div>
-            <span>Active Orders</span>
-        </div>
-        <div class="nav-item" data-page="create" onclick="showPage('create', this)">
-            <div class="nav-item-dot"></div>
-            <span>Create Order</span>
-        </div>
-        <div class="nav-item" data-page="completed" onclick="showPage('completed', this)">
-            <div class="nav-item-dot"></div>
-            <span>Completed Orders</span>
-        </div>
-        <div class="nav-item" data-page="delivered" onclick="showPage('delivered', this)">
-            <div class="nav-item-dot"></div>
-            <span>Delivered Orders</span>
-        </div>
+        <div class="nav-item active" data-page="active" onclick="showPage('active', this)">Active Orders</div>
+        <div class="nav-item" data-page="create" onclick="showPage('create', this)">Create Order</div>
+        <div class="nav-item" data-page="completed" onclick="showPage('completed', this)">Completed Orders</div>
+        <div class="nav-item" data-page="delivered" onclick="showPage('delivered', this)">Delivered Orders</div>
 
-        <div class="nav-spacer"></div>
+        <div style="flex:1;"></div>
 
-        <div class="nav-group-label">Account</div>
-        <div class="nav-item" onclick="logout()">
-            <div class="nav-item-dot"></div>
-            <span>Logout</span>
-        </div>
+        <div class="nav-item" onclick="logout()">Logout</div>
     </div>
 
     <div id="content">
-        <div id="content-inner">
-            <!-- Filled by JS -->
-        </div>
+        <div id="content-inner"></div>
     </div>
 </div>
 
 <script>
-/* INIT SUPABASE */
+/* ------------------------------ */
+/* SUPABASE INIT */
+/* ------------------------------ */
+
 const sb = window.supabase.createClient(
     "https://tottpqebhmuaemnngvrz.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvdHRwcWViaG11YWVtbm5ndnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjA4NDAsImV4cCI6MjA5MzIzNjg0MH0.T4tjFt-_QcGlZtA4cfdQDmujWXBA8r9Z4SqeGpJ02hU"
 );
 
+/* ------------------------------ */
 /* LOGIN */
+/* ------------------------------ */
+
 async function login() {
     const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value;
 
-    const { error } = await sb.auth.signInWithPassword({ email, password });
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
 
     if (error) {
+        document.getElementById("login-error").style.color = "#ef4444";
         document.getElementById("login-error").innerText = "Invalid email or password.";
-    } else {
-        document.getElementById("login-error").innerText = "";
-        loadApp();
+
+        // Shake animation
+        document.getElementById("login-box").classList.add("shake");
+        setTimeout(() => {
+            document.getElementById("login-box").classList.remove("shake");
+        }, 400);
+
+        return;
     }
+
+    // Welcome message
+    document.getElementById("login-error").style.color = "#22c55e";
+    document.getElementById("login-error").innerText = `Welcome, ${email}`;
+
+    // Fade out login screen
+    document.getElementById("login-screen").classList.add("fade-out");
+
+    // Load dashboard after animation
+    setTimeout(() => {
+        loadApp();
+    }, 700);
 }
 
-/* LOGOUT */
 async function logout() {
     await sb.auth.signOut();
     location.reload();
 }
 
-/* SESSION CHECK */
 sb.auth.getSession().then(({ data }) => {
     if (data.session) loadApp();
 });
 
+/* ------------------------------ */
 /* LOAD APP */
-function loadApp() {
+/* ------------------------------ */
+
+async function loadApp() {
     document.getElementById("login-screen").style.display = "none";
-    document.getElementById("app").style.display = "flex";
-    setActiveNav("active");
-    loadOrders("Active");
+
+    const app = document.getElementById("app");
+    app.style.display = "flex";
+    app.classList.add("fade-in");
+
+    // Sidebar animation
+    document.getElementById("sidebar").classList.add("slide-in");
+
+    // Show email in sidebar
+    const { data } = await sb.auth.getUser();
+    if (data?.user?.email) {
+        document.getElementById("sidebar-user-email").innerText = data.user.email;
+    }
+
+    showPage("active");
 }
 
-/* NAV ACTIVE STATE */
-function setActiveNav(page) {
-    document.querySelectorAll(".nav-item[data-page]").forEach(el => {
-        el.classList.toggle("active", el.getAttribute("data-page") === page);
-    });
-}
+/* ------------------------------ */
+/* NAVIGATION */
+/* ------------------------------ */
 
-/* PAGE SWITCHER */
 function showPage(page, el) {
-    if (el) setActiveNav(page);
+    document.querySelectorAll(".nav-item[data-page]").forEach(x => x.classList.remove("active"));
+    if (el) el.classList.add("active");
 
     if (page === "create") renderCreateOrder();
     if (page === "active") loadOrders("Active");
@@ -586,120 +408,94 @@ function showPage(page, el) {
     if (page === "delivered") loadOrders("Delivered");
 }
 
-/* RENDER WRAPPER */
-function setContent(title, subtitle, innerHtml) {
-    document.getElementById("content-inner").innerHTML = `
-        <div id="content-header">
-            <div>
-                <div id="content-title">${title}</div>
-                <div id="content-subtitle">${subtitle}</div>
-            </div>
-            <div id="content-pill">3D World Wide • Admin</div>
-        </div>
-        <div>${innerHtml}</div>
-    `;
+/* ------------------------------ */
+/* CONTENT WRAPPER */
+/* ------------------------------ */
+
+function setContent(title, html) {
+    const content = document.getElementById("content-inner");
+    content.style.opacity = 0;
+    content.style.transform = "translateY(20px)";
+
+    content.innerHTML = `<h2>${title}</h2>${html}`;
+
+    setTimeout(() => {
+        content.classList.add("fade-up");
+    }, 50);
 }
 
-/* CREATE ORDER PAGE */
-function renderCreateOrder() {
-    setContent(
-        "Create New Order",
-        "Add a new print job to your production pipeline.",
-        `
-        <div>
-            <input id="name" placeholder="Customer Name">
-            <input id="email" placeholder="Customer Email">
-            <input id="phone" placeholder="Phone">
-            <input id="material" placeholder="Material (e.g. PLA, ABS)">
-            <input id="color" placeholder="Color (e.g. Black, White)">
-            <input id="quantity" type="number" placeholder="Quantity">
-            <select id="priority">
-                <option value="Normal">Normal Priority</option>
-                <option value="High">High Priority</option>
-            </select>
-            <textarea id="notes" placeholder="Notes (dimensions, special instructions, etc.)"></textarea>
-            <button onclick="createOrder()">Create Order</button>
-        </div>
-        `
-    );
-}
-
+/* ------------------------------ */
 /* CREATE ORDER */
+/* ------------------------------ */
+
+function renderCreateOrder() {
+    setContent("Create Order", `
+        <input id="name" placeholder="Customer Name">
+        <input id="email" placeholder="Customer Email">
+        <input id="phone" placeholder="Phone">
+        <input id="material" placeholder="Material">
+        <input id="color" placeholder="Color">
+        <input id="quantity" type="number" placeholder="Quantity">
+        <select id="priority">
+            <option>Normal</option>
+            <option>High</option>
+        </select>
+        <textarea id="notes" placeholder="Notes"></textarea>
+        <button onclick="createOrder()">Create Order</button>
+    `);
+}
+
 async function createOrder() {
     const order = {
-        customer_name: document.getElementById("name").value.trim(),
-        customer_email: document.getElementById("email").value.trim(),
-        phone: document.getElementById("phone").value.trim(),
-        material: document.getElementById("material").value.trim(),
-        color: document.getElementById("color").value.trim(),
-        quantity: parseInt(document.getElementById("quantity").value || "0"),
+        customer_name: document.getElementById("name").value,
+        customer_email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        material: document.getElementById("material").value,
+        color: document.getElementById("color").value,
+        quantity: parseInt(document.getElementById("quantity").value),
         priority: document.getElementById("priority").value,
         status: "Active",
-        notes: document.getElementById("notes").value.trim(),
-        rush: false
+        notes: document.getElementById("notes").value
     };
-
-    if (!order.customer_name || !order.customer_email || !order.material || !order.quantity) {
-        alert("Please fill in at least name, email, material, and quantity.");
-        return;
-    }
 
     await sb.from("orders").insert(order);
     alert("Order created!");
-    showPage("active");
+    loadOrders("Active");
 }
 
+/* ------------------------------ */
 /* LOAD ORDERS */
+/* ------------------------------ */
+
 async function loadOrders(status) {
-    const { data, error } = await sb
+    const { data } = await sb
         .from("orders")
         .select("*")
         .eq("status", status)
         .order("created_at", { ascending: false });
 
-    if (error) {
-        setContent("Error", "Unable to load orders.", `<p>${error.message}</p>`);
-        return;
-    }
-
-    const statusClass =
-        status === "Active" ? "active" :
-        status === "Completed" ? "completed" :
-        status === "Delivered" ? "delivered" : "";
-
     let rows = "";
 
-    (data || []).forEach(o => {
+    data.forEach(o => {
         rows += `
             <tr>
-                <td>${o.customer_name || "-"}</td>
-                <td>${o.material || "-"}</td>
-                <td>${o.quantity || "-"}</td>
-                <td><span class="status-pill ${statusClass}">${o.status}</span></td>
+                <td>${o.customer_name}</td>
+                <td>${o.material}</td>
+                <td>${o.quantity}</td>
+                <td>${o.status}</td>
                 <td>
-                    <div class="action-buttons">
-                        ${status !== "Completed" ? `<button class="btn-small btn-complete" onclick="markCompleted('${o.id}')">Mark Completed</button>` : ""}
-                        ${status !== "Delivered" ? `<button class="btn-small btn-deliver" onclick="markDelivered('${o.id}')">Mark Delivered</button>` : ""}
-                    </div>
+                    <button class="btn-small btn-complete" onclick="markCompleted('${o.id}')">Complete</button>
+                    <button class="btn-small btn-deliver" onclick="markDelivered('${o.id}')">Deliver</button>
+                    <button class="btn-small btn-delete" onclick="deleteOrder('${o.id}')">Delete</button>
                 </td>
             </tr>
         `;
     });
 
-    if (!rows) {
-        rows = `
-            <tr>
-                <td colspan="5" style="text-align:center; padding:18px; color:#9ca3af;">
-                    No ${status.toLowerCase()} orders found.
-                </td>
-            </tr>
-        `;
-    }
-
-    const tableHtml = `
+    setContent(`${status} Orders`, `
         <table>
             <tr>
-                <th>Customer</th>
+                <th>Name</th>
                 <th>Material</th>
                 <th>Qty</th>
                 <th>Status</th>
@@ -707,28 +503,18 @@ async function loadOrders(status) {
             </tr>
             ${rows}
         </table>
-    `;
-
-    const subtitleMap = {
-        "Active": "Jobs currently in progress or queued.",
-        "Completed": "Jobs finished and ready for delivery.",
-        "Delivered": "Jobs delivered to customers (auto-removed after 7 days)."
-    };
-
-    setContent(
-        `${status} Orders`,
-        subtitleMap[status] || "Order list.",
-        tableHtml
-    );
+    `);
 }
 
-/* MARK COMPLETED */
+/* ------------------------------ */
+/* UPDATE STATUS */
+/* ------------------------------ */
+
 async function markCompleted(id) {
     await sb.from("orders").update({ status: "Completed" }).eq("id", id);
     loadOrders("Completed");
 }
 
-/* MARK DELIVERED */
 async function markDelivered(id) {
     const deliveredAt = new Date();
     const autoDeleteAt = new Date(deliveredAt.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -740,6 +526,22 @@ async function markDelivered(id) {
     }).eq("id", id);
 
     loadOrders("Delivered");
+}
+
+/* ------------------------------ */
+/* DELETE ORDER */
+/* ------------------------------ */
+
+async function deleteOrder(id) {
+    if (!confirm("Delete this order permanently?")) return;
+
+    await sb.from("orders").delete().eq("id", id);
+
+    const activePage = document.querySelector(".nav-item.active").dataset.page;
+
+    if (activePage === "active") loadOrders("Active");
+    if (activePage === "completed") loadOrders("Completed");
+    if (activePage === "delivered") loadOrders("Delivered");
 }
 </script>
 
