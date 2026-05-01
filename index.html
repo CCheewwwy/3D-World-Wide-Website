@@ -1,623 +1,283 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>3D World Wide — Admin Panel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    :root {
-      --bg: #05060a;
-      --bg-alt: #0c0f18;
-      --card: #111624;
-      --accent: #3d8bff;
-      --accent-danger: #ff4d6a;
-      --text: #f5f7ff;
-      --muted: #9aa0b8;
-      --border: #1c2235;
-      --radius: 10px;
-      --shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
-    }
+<meta charset="UTF-8">
+<title>3D World Wide Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
+<style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #10152a 0, #05060a 55%);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
     }
 
     /* LOGIN SCREEN */
-    #loginScreen {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #05060a;
-      color: white;
-      font-family: system-ui;
+    #login-screen {
+        display: flex;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+        background: #111;
+        color: white;
+    }
+    #login-box {
+        background: #1c1c1c;
+        padding: 30px;
+        border-radius: 10px;
+        width: 300px;
+    }
+    #login-box input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: none;
+    }
+    #login-box button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 15px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
     }
 
-    #loginBox {
-      background: #0c0f18;
-      padding: 25px;
-      border-radius: 10px;
-      border: 1px solid #1c2235;
-      width: 300px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    /* DASHBOARD LAYOUT */
+    #app {
+        display: none;
+        height: 100vh;
+        display: flex;
     }
 
-    #loginBox input {
-      width: 100%;
-      margin-top: 8px;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #1c2235;
-      background: #111624;
-      color: white;
-      outline: none;
+    /* SIDEBAR */
+    #sidebar {
+        width: 240px;
+        background: #1a1a1a;
+        color: white;
+        padding-top: 20px;
+    }
+    #sidebar h2 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .nav-item {
+        padding: 15px 20px;
+        cursor: pointer;
+        border-bottom: 1px solid #333;
+    }
+    .nav-item:hover {
+        background: #333;
     }
 
-    #loginBox button {
-      margin-top: 15px;
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: linear-gradient(135deg,#3d8bff,#4cffd0);
-      color: #05060a;
-      font-weight: 600;
-      cursor: pointer;
+    /* MAIN CONTENT */
+    #content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
     }
 
-    /* ADMIN PANEL */
-    .app {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
-      width: 100%;
+    /* FORMS */
+    input, select, textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
     }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      gap: 16px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-logo {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: radial-gradient(circle at 30% 20%, #4cffd0, #3d8bff 40%, #111624 80%);
-      box-shadow: 0 0 18px rgba(61, 139, 255, 0.7);
-    }
-
-    .brand-text h1 {
-      font-size: 1.4rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .brand-text span {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .header-meta {
-      text-align: right;
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(61, 139, 255, 0.12);
-      color: var(--accent);
-      font-size: 0.75rem;
-      margin-bottom: 4px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #4cffd0;
-      box-shadow: 0 0 8px rgba(76, 255, 208, 0.9);
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
-      gap: 20px;
-    }
-
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .header-meta {
-        text-align: left;
-      }
-    }
-
-    .card {
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.02), transparent);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      padding: 18px 18px 16px;
-      backdrop-filter: blur(18px);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      gap: 8px;
-    }
-
-    .card-title {
-      font-size: 1rem;
-      font-weight: 600;
-    }
-
-    .card-subtitle {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .pill {
-      font-size: 0.75rem;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
-
-    form {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px 14px;
-      margin-top: 8px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 0.8rem;
-    }
-
-    .field.full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      color: var(--muted);
-    }
-
-    input,
-    select,
-    textarea {
-      background: var(--bg-alt);
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      padding: 8px 9px;
-      color: var(--text);
-      font-size: 0.85rem;
-      outline: none;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 60px;
-      max-height: 140px;
-    }
-
-    .field-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .btn-row {
-      grid-column: 1 / -1;
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
     button {
-      border-radius: 999px;
-      border: none;
-      padding: 8px 16px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+        padding: 10px 15px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, #3d8bff, #4cffd0);
-      color: #05060a;
-      font-weight: 600;
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-
-    .orders-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .orders-meta {
-      font-size: 0.8rem;
-      color: var(--muted);
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .orders-table-wrapper {
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: rgba(5, 6, 10, 0.7);
-      overflow: hidden;
-      max-height: 420px;
-      overflow-y: auto;
-    }
-
+    /* TABLES */
     table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
     }
-
-    th,
-    td {
-      padding: 8px 10px;
-      border-bottom: 1px solid rgba(28, 34, 53, 0.7);
-      white-space: nowrap;
+    table th, table td {
+        padding: 12px;
+        border-bottom: 1px solid #ccc;
     }
-
-    .badge {
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .badge-priority-high {
-      color: var(--accent-danger);
-      border-color: rgba(255, 77, 106, 0.6);
-      background: rgba(255, 77, 106, 0.08);
-    }
-
-    .badge-priority-medium {
-      color: #ffc857;
-      border-color: rgba(255, 200, 87, 0.6);
-      background: rgba(255, 200, 87, 0.08);
-    }
-
-    .badge-priority-low {
-      color: #4cffd0;
-      border-color: rgba(76, 255, 208, 0.6);
-      background: rgba(76, 255, 208, 0.08);
-    }
-
-    .badge-status {
-      color: #9aa0ff;
-      border-color: rgba(154, 160, 255, 0.6);
-      background: rgba(154, 160, 255, 0.08);
-    }
-
-    .empty-state {
-      padding: 18px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-  </style>
+</style>
 </head>
 <body>
 
-  <!-- LOGIN SCREEN -->
-  <div id="loginScreen">
-    <h1 style="margin-bottom:20px; font-size:2rem;">3D World Wide — Admin Login</h1>
-
-    <div id="loginBox">
-      <label style="font-size:0.9rem; color:#9aa0b8;">Password</label>
-      <input id="adminPassword" type="password" placeholder="Enter admin password">
-
-      <button type="button" onclick="login()">Login</button>
-
-      <p id="loginError" style="color:#ff4d6a; margin-top:10px; display:none;">
-        Incorrect password
-      </p>
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+    <div id="login-box">
+        <h2>Admin Login</h2>
+        <input id="login-email" type="email" placeholder="Email">
+        <input id="login-password" type="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <p id="login-error" style="color:red;"></p>
     </div>
-  </div>
+</div>
 
-  <!-- ADMIN PANEL (HIDDEN UNTIL LOGIN) -->
-  <div class="app" id="adminPanel" style="display:none;">
+<!-- APP -->
+<div id="app">
+    <div id="sidebar">
+        <h2>3D Admin</h2>
+        <div class="nav-item" onclick="showPage('create')">Create Order</div>
+        <div class="nav-item" onclick="showPage('active')">Active Orders</div>
+        <div class="nav-item" onclick="showPage('completed')">Completed Orders</div>
+        <div class="nav-item" onclick="showPage('delivered')">Delivered Orders</div>
+        <div class="nav-item" onclick="logout()">Logout</div>
+    </div>
 
-    <header>
-      <div class="brand">
-        <div class="brand-logo"></div>
-        <div class="brand-text">
-          <h1>3D World Wide</h1>
-          <span>Admin Control Panel · Print Order Management</span>
-        </div>
-      </div>
-      <div class="header-meta">
-        <div class="tag">
-          <span class="status-dot"></span>
-          Live Admin Session
-        </div>
-        <div>Local only · No database yet</div>
-      </div>
-    </header>
+    <div id="content">
+        <!-- Pages will be injected here -->
+    </div>
+</div>
 
-    <main class="layout">
-      <!-- LEFT: ORDER CREATION PANEL -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Create New Print Order</div>
-            <div class="card-subtitle">Fill out the details to add a new 3D print job.</div>
-          </div>
-          <div class="pill">Order Form</div>
-        </div>
+<script>
+/* INIT SUPABASE */
+const supabase = supabase.createClient(
+    "https://tottpqebhmuaemnngvrz.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvdHRwcWViaG11YWVtbm5ndnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjA4NDAsImV4cCI6MjA5MzIzNjg0MH0.T4tjFt-_QcGlZtA4cfdQDmujWXBA8r9Z4SqeGpJ02hU"
+);
 
-        <form id="orderForm">
-          <div class="field">
-            <label for="customerName">Customer Name</label>
-            <input id="customerName" required />
-          </div>
+/* LOGIN */
+async function login() {
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
 
-          <div class="field">
-            <label for="customerEmail">Email</label>
-            <input id="customerEmail" type="email" required />
-          </div>
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-          <div class="field">
-            <label for="phone">Phone</label>
-            <input id="phone" />
-          </div>
-
-          <div class="field">
-            <label for="printType">Print Type</label>
-            <select id="printType" required>
-              <option value="">Select…</option>
-              <option>Prototype</option>
-              <option>Functional Part</option>
-              <option>Miniature / Model</option>
-              <option>Cosplay / Prop</option>
-              <option>Custom Request</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="material">Material</label>
-            <select id="material" required>
-              <option value="">Select…</option>
-              <option>PLA</option>
-              <option>PETG</option>
-              <option>ABS</option>
-              <option>Resin</option>
-              <option>Nylon</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="color">Color</label>
-            <input id="color" required />
-          </div>
-
-          <div class="field">
-            <label for="quantity">Quantity</label>
-            <input id="quantity" type="number" min="1" value="1" required />
-          </div>
-
-          <div class="field">
-            <label for="priority">Priority</label>
-            <select id="priority">
-              <option>Low</option>
-              <option selected>Medium</option>
-              <option>High</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="status">Status</label>
-            <select id="status">
-              <option>Pending</option>
-              <option>In Progress</option>
-              <option>Ready for Pickup</option>
-              <option>Completed</option>
-            </select>
-          </div>
-
-          <div class="field full">
-            <label for="notes">Notes</label>
-            <textarea id="notes"></textarea>
-          </div>
-
-          <div class="field-row full">
-            <input id="rush" type="checkbox" />
-            <label for="rush">Rush job</label>
-          </div>
-
-          <div class="btn-row">
-            <button type="button" class="btn-ghost" id="clearFormBtn">Clear</button>
-            <button type="submit" class="btn-primary">+ Create Order</button>
-          </div>
-        </form>
-      </section>
-
-      <!-- RIGHT: ORDERS TABLE -->
-      <section class="card">
-        <div class="orders-header">
-          <div>
-            <div class="card-title">Current Orders</div>
-            <div class="card-subtitle">Orders created in this session only.</div>
-          </div>
-          <div class="orders-meta">
-            <span><strong id="totalOrders">0</strong> orders</span>
-            <span>Last created: <span id="lastCreated">—</span></span>
-          </div>
-        </div>
-
-        <div class="orders-table-wrapper">
-          <div class="empty-state" id="emptyState">
-            No orders yet. Create one using the form.
-          </div>
-
-          <table id="ordersTable" style="display:none;">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Customer</th>
-                <th>Type</th>
-                <th>Material</th>
-                <th>Qty</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Rush</th>
-              </tr>
-            </thead>
-            <tbody id="ordersBody"></tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <script>
-    /* LOGIN LOGIC */
-    const CORRECT_PASSWORD = "3dadmin123"; // change this
-
-    function login() {
-      const input = document.getElementById("adminPassword").value;
-
-      if (input === CORRECT_PASSWORD) {
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("adminPanel").style.display = "block";
-      } else {
-        document.getElementById("loginError").style.display = "block";
-      }
+    if (error) {
+        document.getElementById("login-error").innerText = "Invalid login.";
+    } else {
+        loadApp();
     }
+}
 
-    /* ORDER SYSTEM */
-    const orderForm = document.getElementById("orderForm");
-    const clearFormBtn = document.getElementById("clearFormBtn");
-    const ordersTable = document.getElementById("ordersTable");
-    const ordersBody = document.getElementById("ordersBody");
-    const emptyState = document.getElementById("emptyState");
-    const totalOrdersEl = document.getElementById("totalOrders");
-    const lastCreatedEl = document.getElementById("lastCreated");
+/* LOGOUT */
+async function logout() {
+    await supabase.auth.signOut();
+    location.reload();
+}
 
-    let orders = [];
-    let orderCounter = 0;
+/* SESSION CHECK */
+supabase.auth.getSession().then(({ data }) => {
+    if (data.session) loadApp();
+});
 
-    function formatPriority(priority) {
-      const base = "badge ";
-      if (priority === "High") return base + "badge-priority-high";
-      if (priority === "Medium") return base + "badge-priority-medium";
-      return base + "badge-priority-low";
-    }
+/* LOAD APP */
+function loadApp() {
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app").style.display = "flex";
+    showPage("active");
+}
 
-    function addOrder(order) {
-      orders.push(order);
-      orderCounter++;
+/* PAGE SWITCHER */
+function showPage(page) {
+    if (page === "create") renderCreateOrder();
+    if (page === "active") loadOrders("Active");
+    if (page === "completed") loadOrders("Completed");
+    if (page === "delivered") loadOrders("Delivered");
+}
 
-      emptyState.style.display = "none";
-      ordersTable.style.display = "table";
+/* CREATE ORDER PAGE */
+function renderCreateOrder() {
+    document.getElementById("content").innerHTML = `
+        <h2>Create Order</h2>
+        <input id="name" placeholder="Customer Name">
+        <input id="email" placeholder="Customer Email">
+        <input id="phone" placeholder="Phone">
+        <input id="material" placeholder="Material">
+        <input id="color" placeholder="Color">
+        <input id="quantity" type="number" placeholder="Quantity">
+        <select id="priority">
+            <option>Normal</option>
+            <option>High</option>
+        </select>
+        <textarea id="notes" placeholder="Notes"></textarea>
+        <button onclick="createOrder()">Submit Order</button>
+    `;
+}
 
-      const row = document.createElement("tr");
-
-      row.innerHTML = `
-        <td>${orderCounter}</td>
-        <td>${order.customerName}</td>
-        <td>${order.printType}</td>
-        <td>${order.material}</td>
-        <td>${order.quantity}</td>
-        <td><span class="${formatPriority(order.priority)}">${order.priority}</span></td>
-        <td><span class="badge badge-status">${order.status}</span></td>
-        <td>${order.rush ? "Yes" : "No"}</td>
-      `;
-
-      ordersBody.appendChild(row);
-
-      totalOrdersEl.textContent = orders.length;
-      lastCreatedEl.textContent = new Date().toLocaleTimeString();
-    }
-
-    orderForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      const order = {
-        customerName: document.getElementById("customerName").value.trim(),
-        customerEmail: document.getElementById("customerEmail").value.trim(),
-        phone: document.getElementById("phone").value.trim(),
-        printType: document.getElementById("printType").value,
+/* CREATE ORDER */
+async function createOrder() {
+    const order = {
+        customer_name: document.getElementById("name").value,
+        customer_email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
         material: document.getElementById("material").value,
-        color: document.getElementById("color").value.trim(),
-        quantity: parseInt(document.getElementById("quantity").value, 10) || 1,
+        color: document.getElementById("color").value,
+        quantity: parseInt(document.getElementById("quantity").value),
         priority: document.getElementById("priority").value,
-        status: document.getElementById("status").value,
-        notes: document.getElementById("notes").value.trim(),
-        rush: document.getElementById("rush").checked,
-      };
+        status: "Active",
+        notes: document.getElementById("notes").value,
+        rush: false
+    };
 
-      addOrder(order);
+    await supabase.from("orders").insert(order);
+    alert("Order created!");
+    showPage("active");
+}
 
-      orderForm.reset();
-      document.getElementById("quantity").value = 1;
-      document.getElementById("priority").value = "Medium";
-      document.getElementById("status").value = "Pending";
+/* LOAD ORDERS */
+async function loadOrders(status) {
+    const { data } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("status", status)
+        .order("created_at", { ascending: false });
+
+    let html = `<h2>${status} Orders</h2><table><tr>
+        <th>Name</th><th>Material</th><th>Qty</th><th>Status</th><th>Actions</th>
+    </tr>`;
+
+    data.forEach(o => {
+        html += `
+            <tr>
+                <td>${o.customer_name}</td>
+                <td>${o.material}</td>
+                <td>${o.quantity}</td>
+                <td>${o.status}</td>
+                <td>
+                    ${status !== "Completed" ? `<button onclick="markCompleted('${o.id}')">Complete</button>` : ""}
+                    ${status !== "Delivered" ? `<button onclick="markDelivered('${o.id}')">Deliver</button>` : ""}
+                </td>
+            </tr>
+        `;
     });
 
-    clearFormBtn.addEventListener("click", () => {
-      orderForm.reset();
-      document.getElementById("quantity").value = 1;
-      document.getElementById("priority").value = "Medium";
-      document.getElementById("status").value = "Pending";
-    });
-  </script>
+    html += "</table>";
+    document.getElementById("content").innerHTML = html;
+}
+
+/* MARK COMPLETED */
+async function markCompleted(id) {
+    await supabase.from("orders").update({ status: "Completed" }).eq("id", id);
+    showPage("completed");
+}
+
+/* MARK DELIVERED */
+async function markDelivered(id) {
+    const deliveredAt = new Date();
+    const autoDeleteAt = new Date(deliveredAt.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    await supabase.from("orders").update({
+        status: "Delivered",
+        delivered_at: deliveredAt.toISOString(),
+        auto_delete_at: autoDeleteAt.toISOString()
+    }).eq("id", id);
+
+    showPage("delivered");
+}
+</script>
+
 </body>
 </html>
