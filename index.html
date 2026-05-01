@@ -34,6 +34,51 @@
       flex-direction: column;
     }
 
+    /* LOGIN SCREEN */
+    #loginScreen {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #05060a;
+      color: white;
+      font-family: system-ui;
+    }
+
+    #loginBox {
+      background: #0c0f18;
+      padding: 25px;
+      border-radius: 10px;
+      border: 1px solid #1c2235;
+      width: 300px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    #loginBox input {
+      width: 100%;
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #1c2235;
+      background: #111624;
+      color: white;
+      outline: none;
+    }
+
+    #loginBox button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg,#3d8bff,#4cffd0);
+      color: #05060a;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ADMIN PANEL STYLES (same as before) */
     .app {
       max-width: 1200px;
       margin: 0 auto;
@@ -178,33 +223,12 @@
       color: var(--text);
       font-size: 0.85rem;
       outline: none;
-      transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(61, 139, 255, 0.4);
-      background: #111624;
     }
 
     textarea {
       resize: vertical;
       min-height: 60px;
       max-height: 140px;
-    }
-
-    .field-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .field-row span {
-      opacity: 0.8;
     }
 
     .btn-row {
@@ -224,59 +248,18 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
     }
 
     .btn-primary {
       background: linear-gradient(135deg, #3d8bff, #4cffd0);
       color: #05060a;
-      box-shadow: 0 10px 25px rgba(61, 139, 255, 0.5);
       font-weight: 600;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 30px rgba(61, 139, 255, 0.7);
     }
 
     .btn-ghost {
       background: transparent;
       color: var(--muted);
       border: 1px solid var(--border);
-    }
-
-    .btn-ghost:hover {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #4cffd0;
-      box-shadow: 0 0 8px rgba(76, 255, 208, 0.9);
-    }
-
-    .orders-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .orders-meta {
-      font-size: 0.8rem;
-      color: var(--muted);
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .orders-meta span {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
     }
 
     .orders-table-wrapper {
@@ -294,29 +277,10 @@
       font-size: 0.8rem;
     }
 
-    thead {
-      background: rgba(12, 15, 24, 0.95);
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-
     th,
     td {
       padding: 8px 10px;
-      text-align: left;
       border-bottom: 1px solid rgba(28, 34, 53, 0.7);
-      white-space: nowrap;
-    }
-
-    th {
-      font-weight: 500;
-      color: var(--muted);
-      font-size: 0.78rem;
-    }
-
-    tbody tr:nth-child(even) {
-      background: rgba(12, 15, 24, 0.7);
     }
 
     .badge {
@@ -356,19 +320,30 @@
       color: var(--muted);
       font-size: 0.85rem;
     }
-
-    footer {
-      margin-top: auto;
-      padding: 10px 16px 18px;
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--muted);
-      opacity: 0.7;
-    }
   </style>
 </head>
+
 <body>
-  <div class="app">
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen">
+    <h1 style="margin-bottom:20px; font-size:2rem;">3D World Wide — Admin Login</h1>
+
+    <div id="loginBox">
+      <label style="font-size:0.9rem; color:#9aa0b8;">Password</label>
+      <input id="adminPassword" type="password" placeholder="Enter admin password">
+
+      <button onclick="login()">Login</button>
+
+      <p id="loginError" style="color:#ff4d6a; margin-top:10px; display:none;">
+        Incorrect password
+      </p>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL (HIDDEN UNTIL LOGIN) -->
+  <div class="app" id="adminPanel" style="display:none;">
+
     <header>
       <div class="brand">
         <div class="brand-logo"></div>
@@ -382,7 +357,7 @@
           <span class="status-dot"></span>
           Live Admin Session
         </div>
-        <div>Local only · No data is stored on a server yet</div>
+        <div>Local only · No database yet</div>
       </div>
     </header>
 
@@ -399,88 +374,86 @@
 
         <form id="orderForm">
           <div class="field">
-            <label for="customerName">Customer Name</label>
-            <input id="customerName" type="text" placeholder="e.g. Alex Carter" required />
+            <label>Customer Name</label>
+            <input id="customerName" required />
           </div>
 
           <div class="field">
-            <label for="customerEmail">Customer Email</label>
-            <input id="customerEmail" type="email" placeholder="e.g. alex@example.com" required />
+            <label>Email</label>
+            <input id="customerEmail" type="email" required />
           </div>
 
           <div class="field">
-            <label for="phone">Phone (optional)</label>
-            <input id="phone" type="tel" placeholder="e.g. +1 555 123 4567" />
+            <label>Phone</label>
+            <input id="phone" />
           </div>
 
           <div class="field">
-            <label for="printType">Print Type</label>
+            <label>Print Type</label>
             <select id="printType" required>
-              <option value="">Select type…</option>
-              <option value="Prototype">Prototype</option>
-              <option value="Functional Part">Functional Part</option>
-              <option value="Miniature / Model">Miniature / Model</option>
-              <option value="Cosplay / Prop">Cosplay / Prop</option>
-              <option value="Custom Request">Custom Request</option>
+              <option value="">Select…</option>
+              <option>Prototype</option>
+              <option>Functional Part</option>
+              <option>Miniature / Model</option>
+              <option>Cosplay / Prop</option>
+              <option>Custom Request</option>
             </select>
           </div>
 
           <div class="field">
-            <label for="material">Material</label>
+            <label>Material</label>
             <select id="material" required>
-              <option value="">Select material…</option>
-              <option value="PLA">PLA</option>
-              <option value="PETG">PETG</option>
-              <option value="ABS">ABS</option>
-              <option value="Resin">Resin</option>
-              <option value="Nylon">Nylon</option>
+              <option value="">Select…</option>
+              <option>PLA</option>
+              <option>PETG</option>
+              <option>ABS</option>
+              <option>Resin</option>
+              <option>Nylon</option>
             </select>
           </div>
 
           <div class="field">
-            <label for="color">Color</label>
-            <input id="color" type="text" placeholder="e.g. Matte Black, White, Transparent" required />
+            <label>Color</label>
+            <input id="color" required />
           </div>
 
           <div class="field">
-            <label for="quantity">Quantity</label>
+            <label>Quantity</label>
             <input id="quantity" type="number" min="1" value="1" required />
           </div>
 
           <div class="field">
-            <label for="priority">Priority</label>
-            <select id="priority" required>
-              <option value="Low">Low</option>
-              <option value="Medium" selected>Medium</option>
-              <option value="High">High</option>
+            <label>Priority</label>
+            <select id="priority">
+              <option>Low</option>
+              <option selected>Medium</option>
+              <option>High</option>
             </select>
           </div>
 
           <div class="field">
-            <label for="status">Status</label>
-            <select id="status" required>
-              <option value="Pending" selected>Pending</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Ready for Pickup">Ready for Pickup</option>
-              <option value="Completed">Completed</option>
+            <label>Status</label>
+            <select id="status">
+              <option>Pending</option>
+              <option>In Progress</option>
+              <option>Ready for Pickup</option>
+              <option>Completed</option>
             </select>
           </div>
 
           <div class="field full">
-            <label for="notes">Order Notes / Requirements</label>
-            <textarea id="notes" placeholder="Dimensions, tolerances, infill %, surface finish, file name, etc."></textarea>
+            <label>Notes</label>
+            <textarea id="notes"></textarea>
           </div>
 
           <div class="field-row full">
             <input id="rush" type="checkbox" />
-            <label for="rush">Mark as rush job (adds a visual indicator only)</label>
+            <label for="rush">Rush job</label>
           </div>
 
           <div class="btn-row">
             <button type="button" class="btn-ghost" id="clearFormBtn">Clear</button>
-            <button type="submit" class="btn-primary">
-              <span>+ Create Order</span>
-            </button>
+            <button type="submit" class="btn-primary">+ Create Order</button>
           </div>
         </form>
       </section>
@@ -500,8 +473,9 @@
 
         <div class="orders-table-wrapper" id="ordersWrapper">
           <div class="empty-state" id="emptyState">
-            No orders yet. Use the form on the left to create your first 3D print order.
+            No orders yet. Create one using the form.
           </div>
+
           <table id="ordersTable" style="display:none;">
             <thead>
               <tr>
@@ -522,11 +496,22 @@
     </main>
   </div>
 
-  <footer>
-    3D World Wide · Admin Panel Prototype · Frontend only (no database yet)
-  </footer>
-
   <script>
+    /* LOGIN LOGIC */
+    const CORRECT_PASSWORD = "3dadmin123"; // CHANGE THIS
+
+    function login() {
+      const input = document.getElementById("adminPassword").value;
+
+      if (input === CORRECT_PASSWORD) {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+      } else {
+        document.getElementById("loginError").style.display = "block";
+      }
+    }
+
+    /* ORDER SYSTEM */
     const orderForm = document.getElementById("orderForm");
     const clearFormBtn = document.getElementById("clearFormBtn");
     const ordersTable = document.getElementById("ordersTable");
@@ -549,13 +534,10 @@
       orders.push(order);
       orderCounter++;
 
-      // Hide empty state, show table
       emptyState.style.display = "none";
       ordersTable.style.display = "table";
 
       const row = document.createElement("tr");
-
-      const rushLabel = order.rush ? "Yes" : "No";
 
       row.innerHTML = `
         <td>${orderCounter}</td>
@@ -565,7 +547,7 @@
         <td>${order.quantity}</td>
         <td><span class="${formatPriority(order.priority)}">${order.priority}</span></td>
         <td><span class="badge badge-status">${order.status}</span></td>
-        <td>${rushLabel}</td>
+        <td>${order.rush ? "Yes" : "No"}</td>
       `;
 
       ordersBody.appendChild(row);
@@ -579,31 +561,3 @@
 
       const order = {
         customerName: document.getElementById("customerName").value.trim(),
-        customerEmail: document.getElementById("customerEmail").value.trim(),
-        phone: document.getElementById("phone").value.trim(),
-        printType: document.getElementById("printType").value,
-        material: document.getElementById("material").value,
-        color: document.getElementById("color").value.trim(),
-        quantity: parseInt(document.getElementById("quantity").value, 10) || 1,
-        priority: document.getElementById("priority").value,
-        status: document.getElementById("status").value,
-        notes: document.getElementById("notes").value.trim(),
-        rush: document.getElementById("rush").checked,
-      };
-
-      addOrder(order);
-      orderForm.reset();
-      document.getElementById("quantity").value = 1;
-      document.getElementById("priority").value = "Medium";
-      document.getElementById("status").value = "Pending";
-    });
-
-    clearFormBtn.addEventListener("click", () => {
-      orderForm.reset();
-      document.getElementById("quantity").value = 1;
-      document.getElementById("priority").value = "Medium";
-      document.getElementById("status").value = "Pending";
-    });
-  </script>
-</body>
-</html>
