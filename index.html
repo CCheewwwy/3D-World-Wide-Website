@@ -390,6 +390,7 @@ body {
         <div id="content-inner"></div>
     </div>
 </div>
+
 <script>
 /* ------------------------------ */
 /* ICONS */
@@ -498,3 +499,129 @@ function showPage(page, el) {
 function setContent(title, html) {
     const content = document.getElementById("content-inner");
     content.style.opacity = 0;
+    content.style.transform = "translateY(20px)";
+
+    content.innerHTML = `<h2>${title}</h2>${html}`;
+
+    setTimeout(() => {
+        content.classList.add("fade-up");
+    }, 50);
+}
+
+/* ------------------------------ */
+/* EXPANDABLE ORDER CARDS */
+/* ------------------------------ */
+
+function toggleCard(id) {
+    const body = document.getElementById(id);
+    body.classList.toggle("open");
+}
+
+/* ------------------------------ */
+/* LOAD ORDERS (EXPANDABLE CARDS) */
+/* ------------------------------ */
+
+async function loadOrders(status) {
+    const { data } = await sb
+        .from("orders")
+        .select("*")
+        .eq("status", status)
+        .order("created_at", { ascending: false });
+
+    let cards = "";
+
+    data.forEach(o => {
+        const cardId = `card-${o.id}`;
+
+        cards += `
+            <div class="order-card" onclick="toggleCard('${cardId}')">
+                <div class="order-header">
+                    <div>
+                        <h3 class="order-name">${icons.user} ${o.customer_name}</h3>
+                        <p class="order-sub">
+                            ${icons.material} ${o.material} •
+                            ${icons.color} ${o.color} •
+                            ${icons.qty} Qty: ${o.quantity}
+                        </p>
+                    </div>
+                    <span class="status-badge status-${o.status.toLowerCase()}">${o.status}</span>
+                </div>
+
+                <div id="${cardId}" class="order-body">
+                    <div class="order-row">${icons.email} <strong>Email:</strong> ${o.customer_email}</div>
+                    <div class="order-row">${icons.phone} <strong>Phone:</strong> ${o.phone}</div>
+                    <div class="order-row">${icons.priority} <strong>Priority:</strong> ${o.priority}</div>
+                    <div class="order-row">${icons.notes} <strong>Notes:</strong> ${o.notes || "None"}</div>
+
+                    <div class="order-actions">
+                        ${status !== "Completed" ? `
+                            <button class="btn-small btn-complete" onclick="event.stopPropagation(); markCompleted('${o.id}')">
+                                Complete
+                            </button>` : ""}
+
+                        ${status !== "Delivered" ? `
+                            <button class="btn-small btn-deliver" onclick="event.stopPropagation(); markDelivered('${o.id}')">
+                                Deliver
+                            </button>` : ""}
+
+                        <button class="btn-small btn-delete" onclick="event.stopPropagation(); deleteOrder('${o.id}')">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    setContent(`${status} Orders`, `
+        <div class="order-list">
+            ${cards || `<p style="color:#9ca3af;">No ${status.toLowerCase()} orders found.</p>`}
+        </div>
+    `);
+}
+
+/* ------------------------------ */
+/* UPDATE STATUS */
+/* ------------------------------ */
+
+async function markCompleted(id) {
+    await sb.from("orders").update({ status: "Completed" }).eq("id", id);
+    loadOrders("Completed");
+}
+
+async function markDelivered(id) {
+    const deliveredAt = new Date();
+    const autoDeleteAt = new Date(deliveredAt.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    await sb.from("orders").update({
+        status: "Delivered",
+        delivered_at: deliveredAt.toISOString(),
+        auto_delete_at: autoDeleteAt.toISOString()
+    }).eq("id", id);
+
+    loadOrders("Delivered");
+}
+
+/* ------------------------------ */
+/* DELETE ORDER */
+/* ------------------------------ */
+
+async function deleteOrder(id) {
+    if (!confirm("Delete this order permanently?")) return;
+
+    await sb.from("orders").delete().eq("id", id);
+
+    const activePage = document.querySelector(".nav-item.active").dataset.page;
+
+    if (activePage === "active") loadOrders("Active");
+    if (activePage === "completed") loadOrders("Completed");
+    if (activePage === "delivered") loadOrders("Delivered");
+}
+</script>
+
+</body>
+</html>
+
+/* ------------------------------ */
+/* CREATE ORDER */
+/
