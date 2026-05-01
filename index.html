@@ -32,179 +32,107 @@
             height: 100vh;
         }
 
-        /* --- LOGIN SCREEN --- */
+        /* --- LOGIN --- */
         #login-screen {
-            display: flex;
-            height: 100vh;
-            align-items: center;
-            justify-content: center;
+            display: flex; height: 100vh; align-items: center; justify-content: center;
             background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.35), transparent 55%), #020617;
         }
-
         #login-box {
             background: radial-gradient(circle at top, #111827, #020617);
-            padding: 35px;
-            border-radius: 18px;
-            width: 360px;
+            padding: 35px; border-radius: 18px; width: 360px;
             box-shadow: 0 0 0 1px var(--border), 0 24px 60px rgba(0, 0, 0, 0.8);
             text-align: center;
         }
 
         /* --- FORM ELEMENTS --- */
         input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            margin-top: 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: rgba(15, 23, 42, 0.8);
-            color: var(--text-main);
-            font-size: 14px;
-            outline: none;
+            width: 100%; padding: 12px; margin-top: 12px; border-radius: 10px;
+            border: 1px solid var(--border); background: rgba(15, 23, 42, 0.8);
+            color: var(--text-main); font-size: 14px; outline: none;
         }
-
-        input:focus, textarea:focus { border-color: var(--accent); }
+        .checkbox-container {
+            display: flex; align-items: center; gap: 10px; margin-top: 15px;
+            background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;
+        }
+        .checkbox-container input { width: auto; margin-top: 0; cursor: pointer; }
 
         button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 20px;
-            background: var(--accent-gradient);
-            border: none;
-            color: white;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 15px;
+            width: 100%; padding: 12px; margin-top: 20px; background: var(--accent-gradient);
+            border: none; color: white; border-radius: 30px; cursor: pointer; font-weight: 600;
         }
-
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
 
         /* --- APP LAYOUT --- */
         #app { display: none; height: 100vh; }
-
         #sidebar {
-            width: 260px;
-            background: #020617;
-            padding: 25px 15px;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid var(--border);
+            width: 260px; background: #020617; padding: 25px 15px;
+            display: flex; flex-direction: column; border-right: 1px solid var(--border);
         }
-
         .nav-item {
-            padding: 12px 15px;
-            cursor: pointer;
-            border-radius: 10px;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-            font-size: 14px;
+            padding: 12px 15px; cursor: pointer; border-radius: 10px;
+            color: var(--text-muted); margin-bottom: 5px; font-size: 14px;
         }
-
-        .nav-item:hover, .nav-item.active {
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-        }
+        .nav-item.active { background: rgba(255, 255, 255, 0.08); color: white; }
 
         #content { flex: 1; padding: 40px; overflow-y: auto; }
-        #content-inner { max-width: 900px; margin: 0 auto; animation: fadeUp 0.5s ease; }
+        #content-inner { max-width: 900px; margin: 0 auto; }
 
-        /* --- ORDER CARDS --- */
+        /* --- CARDS --- */
         .order-card {
-            background: var(--bg-card);
-            border-radius: 14px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border);
-            cursor: pointer;
+            background: var(--bg-card); border-radius: 14px; padding: 20px;
+            margin-bottom: 15px; border: 1px solid var(--border); cursor: pointer;
         }
-
-        .order-card:hover { border-color: rgba(255,255,255,0.2); }
-
         .order-header { display: flex; justify-content: space-between; align-items: center; }
-        
-        .order-body { 
-            display: none; 
-            margin-top: 15px; 
-            padding-top: 15px; 
-            border-top: 1px solid var(--border); 
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        
+        .order-body { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 14px; }
         .order-body.open { display: block; animation: slideDown 0.3s ease; }
 
-        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
         .status-active { background: rgba(79, 70, 229, 0.2); color: #818cf8; }
-        .status-completed { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-        .status-delivered { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+        .pay-needed { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .pay-ok { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
 
         .btn-action { width: auto; margin-top: 0; margin-right: 8px; padding: 6px 14px; font-size: 12px; display: inline-block; }
 
-        /* --- ANIMATIONS --- */
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .shake { animation: shake 0.4s ease; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
     </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-screen">
     <div id="login-box">
-        <h2 style="margin: 0 0 10px 0;">3D Admin</h2>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Management Dashboard</p>
+        <h2>3D Admin</h2>
         <input id="login-email" type="email" placeholder="Admin email">
         <input id="login-password" type="password" placeholder="Password">
         <button onclick="login()">Sign in</button>
-        <p id="login-error" style="font-size: 12px; margin-top: 15px;"></p>
+        <p id="login-error"></p>
     </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app">
     <div id="sidebar">
-        <h3 style="padding-left: 15px;">3D World Wide</h3>
-        <p id="sidebar-user-email" style="font-size: 12px; color: var(--text-muted); padding-left: 15px; margin-bottom: 25px;"></p>
-        
+        <h3>3D World Wide</h3>
+        <p id="sidebar-user-email" style="font-size:12px; color:var(--text-muted); padding-left:15px;"></p>
         <div class="nav-item active" onclick="showPage('active', this)">Active Orders</div>
         <div class="nav-item" onclick="showPage('create', this)">Create New Order</div>
         <div class="nav-item" onclick="showPage('completed', this)">Completed</div>
         <div class="nav-item" onclick="showPage('delivered', this)">Delivered</div>
-        
-        <div style="flex: 1;"></div>
-        <div class="nav-item" onclick="logout()" style="color: var(--danger);">Logout</div>
+        <div style="flex:1"></div>
+        <div class="nav-item" onclick="logout()" style="color:var(--danger)">Logout</div>
     </div>
-    
-    <div id="content">
-        <div id="content-inner"></div>
-    </div>
+    <div id="content"><div id="content-inner"></div></div>
 </div>
 
 <script>
-    // Initialize Supabase
     const sb = window.supabase.createClient(
         "https://tottpqebhmuaemnngvrz.supabase.co",
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvdHRwcWViaG11YWVtbm5ndnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjA4NDAsImV4cCI6MjA5MzIzNjg0MH0.T4tjFt-_QcGlZtA4cfdQDmujWXBA8r9Z4SqeGpJ02hU"
     );
 
-    /* --- AUTHENTICATION --- */
     async function login() {
         const email = document.getElementById("login-email").value;
         const password = document.getElementById("login-password").value;
         const { error } = await sb.auth.signInWithPassword({ email, password });
-
-        if (error) {
-            const box = document.getElementById("login-box");
-            const errEl = document.getElementById("login-error");
-            errEl.innerText = "Access Denied: Invalid Credentials";
-            errEl.style.color = "var(--danger)";
-            box.classList.add("shake");
-            setTimeout(() => box.classList.remove("shake"), 400);
-        } else {
-            loadApp();
-        }
+        if (error) { document.getElementById("login-error").innerText = "Error: " + error.message; } 
+        else { loadApp(); }
     }
 
     async function logout() { await sb.auth.signOut(); location.reload(); }
@@ -212,89 +140,70 @@
     function loadApp() {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("app").style.display = "flex";
-        sb.auth.getUser().then(({data}) => {
-            if(data.user) document.getElementById("sidebar-user-email").innerText = data.user.email;
-        });
+        sb.auth.getUser().then(({data}) => { if(data.user) document.getElementById("sidebar-user-email").innerText = data.user.email; });
         showPage('active');
     }
 
-    /* --- NAVIGATION --- */
     function showPage(page, el) {
-        if (el) {
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
-        
-        const container = document.getElementById("content-inner");
-        container.style.opacity = 0; 
-        
-        setTimeout(() => {
-            if (page === 'create') renderCreateOrder();
-            else loadOrders(page.charAt(0).toUpperCase() + page.slice(1));
-            container.style.opacity = 1;
-        }, 100);
+        if (el) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+        if (page === 'create') renderCreateOrder();
+        else loadOrders(page.charAt(0).toUpperCase() + page.slice(1));
     }
 
-    /* --- DATA MANAGEMENT --- */
     async function loadOrders(status) {
-        const { data, error } = await sb.from("orders").select("*").eq("status", status).order("created_at", { ascending: false });
-        
+        const { data } = await sb.from("orders").select("*").eq("status", status).order("created_at", { ascending: false });
         let html = `<h2>${status} Orders</h2>`;
-        if (!data || data.length === 0) {
-            html += `<p style="color: var(--text-muted)">No ${status.toLowerCase()} orders found.</p>`;
-        } else {
-            data.forEach(o => {
-                html += `
-                    <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
-                        <div class="order-header">
-                            <div>
-                                <strong style="font-size: 18px; color: #fff;">${o.item_name || 'Unnamed Item'}</strong><br>
-                                <span style="font-size: 13px; color: var(--text-muted)">Customer: ${o.customer_name}</span><br>
-                                <span style="font-size: 12px; color: #818cf8;">${o.material} • ${o.color} • Qty: ${o.quantity}</span>
-                            </div>
-                            <span class="status-badge status-${o.status.toLowerCase()}">${o.status}</span>
+        data?.forEach(o => {
+            const paymentBadge = o.payment_needed ? `<span class="badge pay-needed">UNPAID</span>` : `<span class="badge pay-ok">PAID</span>`;
+            html += `
+                <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
+                    <div class="order-header">
+                        <div>
+                            <strong style="font-size:18px;">${o.item_name}</strong> ${paymentBadge}<br>
+                            <span style="font-size:13px; color:var(--text-muted)">Customer: ${o.customer_name} | Cost: $${o.cost || 0}</span>
                         </div>
-                        <div class="order-body">
-                            <p><strong>Email:</strong> ${o.customer_email}<br>
-                               <strong>Phone:</strong> ${o.phone}<br>
-                               <strong>Priority:</strong> ${o.priority}<br>
-                               <strong>Notes:</strong> ${o.notes || "No extra notes provided."}</p>
-                            <div style="margin-top: 15px;">
-                                ${status === 'Active' ? `<button class="btn-action" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Mark Completed</button>` : ''}
-                                ${status !== 'Delivered' ? `<button class="btn-action" style="background:rgba(234,179,8,0.2); color:#facc15" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Delivered')">Mark Delivered</button>` : ''}
-                                <button class="btn-action" style="background:rgba(239,68,68,0.2); color:#fca5a5" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete Order</button>
-                            </div>
+                        <span class="badge status-active">${o.status}</span>
+                    </div>
+                    <div class="order-body">
+                        <p><strong>Contact:</strong> ${o.customer_email} | ${o.phone}</p>
+                        <p><strong>Details:</strong> ${o.material} - ${o.color} (Qty: ${o.quantity})</p>
+                        <p><strong>Notes:</strong> ${o.notes || "None"}</p>
+                        <div style="margin-top:10px">
+                            ${status === 'Active' ? `<button class="btn-action" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Complete</button>` : ''}
+                            ${o.payment_needed ? `<button class="btn-action" style="background:var(--success); color:white" onclick="event.stopPropagation(); markAsPaid('${o.id}')">Mark as Paid</button>` : ''}
+                            <button class="btn-action" style="background:rgba(239,68,68,0.2); color:#fca5a5" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
                         </div>
-                    </div>`;
-            });
-        }
-        document.getElementById("content-inner").innerHTML = html;
+                    </div>
+                </div>`;
+        });
+        document.getElementById("content-inner").innerHTML = html || "No orders.";
     }
 
     function renderCreateOrder() {
         document.getElementById("content-inner").innerHTML = `
             <h2>Create New Order</h2>
             <div style="background: var(--bg-card); padding: 25px; border-radius: 14px; border: 1px solid var(--border);">
-                <input id="item_name" placeholder="Item Name (e.g. Desk Organizer, Gears)">
+                <input id="item_name" placeholder="Item Name">
                 <input id="name" placeholder="Customer Name">
-                <div style="display: flex; gap: 10px;">
-                    <input id="email" placeholder="Customer Email">
-                    <input id="phone" placeholder="Phone Number">
+                <div style="display:flex; gap:10px;">
+                    <input id="cost" type="number" step="0.01" placeholder="Cost ($)">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="payment_needed" checked>
+                        <label for="payment_needed" style="font-size:13px;">Payment Needed?</label>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <input id="material" placeholder="Material (e.g. PLA, PETG)">
+                <div style="display:flex; gap:10px;">
+                    <input id="email" placeholder="Email">
+                    <input id="phone" placeholder="Phone">
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <input id="material" placeholder="Material">
                     <input id="color" placeholder="Color">
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <input id="quantity" type="number" placeholder="Quantity" value="1">
-                    <select id="priority">
-                        <option value="Normal">Normal Priority</option>
-                        <option value="High">High Priority</option>
-                        <option value="Urgent">Urgent</option>
-                    </select>
-                </div>
-                <textarea id="notes" placeholder="Additional details or special instructions..." rows="4"></textarea>
-                <button onclick="createOrder()">Submit New Order</button>
+                <input id="quantity" type="number" value="1">
+                <select id="priority"><option>Normal</option><option>High</option></select>
+                <textarea id="notes" placeholder="Notes" rows="3"></textarea>
+                <button onclick="createOrder()">Submit Order</button>
             </div>`;
     }
 
@@ -302,43 +211,35 @@
         const order = {
             item_name: document.getElementById("item_name").value,
             customer_name: document.getElementById("name").value,
+            cost: parseFloat(document.getElementById("cost").value) || 0,
+            payment_needed: document.getElementById("payment_needed").checked,
             customer_email: document.getElementById("email").value,
             phone: document.getElementById("phone").value,
             material: document.getElementById("material").value,
             color: document.getElementById("color").value,
-            quantity: parseInt(document.getElementById("quantity").value) || 1,
+            quantity: parseInt(document.getElementById("quantity").value),
             priority: document.getElementById("priority").value,
             status: "Active",
             notes: document.getElementById("notes").value
         };
-
-        if(!order.customer_name || !order.item_name) { 
-            alert("Item Name and Customer Name are required"); 
-            return; 
-        }
-
         const { error } = await sb.from("orders").insert(order);
-        if(!error) {
-            alert("Order Successfully Created!");
-            showPage('active');
-        } else {
-            alert("Error: " + error.message);
-        }
+        if(!error) showPage('active'); else alert(error.message);
     }
 
     async function updateStatus(id, newStatus) {
-        const { error } = await sb.from("orders").update({ status: newStatus }).eq("id", id);
-        if(!error) showPage(newStatus.toLowerCase());
+        await sb.from("orders").update({ status: newStatus }).eq("id", id);
+        showPage(newStatus.toLowerCase());
+    }
+
+    async function markAsPaid(id) {
+        await sb.from("orders").update({ payment_needed: false }).eq("id", id);
+        showPage('active');
     }
 
     async function deleteOrder(id) {
-        if (confirm("Are you sure you want to permanently delete this order?")) {
-            const { error } = await sb.from("orders").delete().eq("id", id);
-            if(!error) location.reload();
-        }
+        if(confirm("Delete?")) { await sb.from("orders").delete().eq("id", id); showPage('active'); }
     }
 
-    // Auto-login session check
     sb.auth.getSession().then(({ data }) => { if (data.session) loadApp(); });
 </script>
 </body>
