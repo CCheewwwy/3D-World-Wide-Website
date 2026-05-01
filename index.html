@@ -226,7 +226,7 @@
         }
         
         const container = document.getElementById("content-inner");
-        container.style.opacity = 0; // Trigger fade effect
+        container.style.opacity = 0; 
         
         setTimeout(() => {
             if (page === 'create') renderCreateOrder();
@@ -248,8 +248,9 @@
                     <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
                         <div class="order-header">
                             <div>
-                                <strong style="font-size: 18px; color: #fff;">${o.customer_name}</strong><br>
-                                <span style="font-size: 13px; color: var(--text-muted)">${o.material} • ${o.color} • Qty: ${o.quantity}</span>
+                                <strong style="font-size: 18px; color: #fff;">${o.item_name || 'Unnamed Item'}</strong><br>
+                                <span style="font-size: 13px; color: var(--text-muted)">Customer: ${o.customer_name}</span><br>
+                                <span style="font-size: 12px; color: #818cf8;">${o.material} • ${o.color} • Qty: ${o.quantity}</span>
                             </div>
                             <span class="status-badge status-${o.status.toLowerCase()}">${o.status}</span>
                         </div>
@@ -274,6 +275,7 @@
         document.getElementById("content-inner").innerHTML = `
             <h2>Create New Order</h2>
             <div style="background: var(--bg-card); padding: 25px; border-radius: 14px; border: 1px solid var(--border);">
+                <input id="item_name" placeholder="Item Name (e.g. Desk Organizer, Gears)">
                 <input id="name" placeholder="Customer Name">
                 <div style="display: flex; gap: 10px;">
                     <input id="email" placeholder="Customer Email">
@@ -298,6 +300,7 @@
 
     async function createOrder() {
         const order = {
+            item_name: document.getElementById("item_name").value,
             customer_name: document.getElementById("name").value,
             customer_email: document.getElementById("email").value,
             phone: document.getElementById("phone").value,
@@ -309,11 +312,14 @@
             notes: document.getElementById("notes").value
         };
 
-        if(!order.customer_name) { alert("Customer name is required"); return; }
+        if(!order.customer_name || !order.item_name) { 
+            alert("Item Name and Customer Name are required"); 
+            return; 
+        }
 
         const { error } = await sb.from("orders").insert(order);
         if(!error) {
-            alert("Order Successly Created!");
+            alert("Order Successfully Created!");
             showPage('active');
         } else {
             alert("Error: " + error.message);
@@ -328,7 +334,7 @@
     async function deleteOrder(id) {
         if (confirm("Are you sure you want to permanently delete this order?")) {
             const { error } = await sb.from("orders").delete().eq("id", id);
-            if(!error) showPage('active');
+            if(!error) location.reload();
         }
     }
 
