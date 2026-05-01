@@ -32,7 +32,7 @@
             height: 100vh;
         }
 
-        /* --- LOGIN --- */
+        /* --- LOGIN SCREEN --- */
         #login-screen {
             display: flex; height: 100vh; align-items: center; justify-content: center;
             background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.35), transparent 55%), #020617;
@@ -50,6 +50,8 @@
             border: 1px solid var(--border); background: rgba(15, 23, 42, 0.8);
             color: var(--text-main); font-size: 14px; outline: none;
         }
+        input:focus, textarea:focus { border-color: var(--accent); }
+
         .checkbox-container {
             display: flex; align-items: center; gap: 10px; margin-top: 15px;
             background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;
@@ -71,52 +73,54 @@
             padding: 12px 15px; cursor: pointer; border-radius: 10px;
             color: var(--text-muted); margin-bottom: 5px; font-size: 14px;
         }
-        .nav-item.active { background: rgba(255, 255, 255, 0.08); color: white; }
+        .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.08); color: white; }
 
         #content { flex: 1; padding: 40px; overflow-y: auto; }
-        #content-inner { max-width: 900px; margin: 0 auto; }
+        #content-inner { max-width: 900px; margin: 0 auto; animation: fadeUp 0.5s ease; }
 
-        /* --- CARDS --- */
+        /* --- ORDER CARDS --- */
         .order-card {
             background: var(--bg-card); border-radius: 14px; padding: 20px;
             margin-bottom: 15px; border: 1px solid var(--border); cursor: pointer;
         }
+        .order-card:hover { border-color: rgba(255,255,255,0.2); }
         .order-header { display: flex; justify-content: space-between; align-items: center; }
         .order-body { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 14px; }
-        .order-body.open { display: block; animation: slideDown 0.3s ease; }
+        .order-body.open { display: block; }
 
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        /* --- BADGES & BUTTONS --- */
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
         .status-active { background: rgba(79, 70, 229, 0.2); color: #818cf8; }
         .pay-needed { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
         .pay-ok { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-
         .btn-action { width: auto; margin-top: 0; margin-right: 8px; padding: 6px 14px; font-size: 12px; display: inline-block; }
 
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
     <div id="login-box">
-        <h2>3D Admin</h2>
+        <h2 style="margin:0 0 10px 0;">3D Admin</h2>
+        <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Secure Management</p>
         <input id="login-email" type="email" placeholder="Admin email">
         <input id="login-password" type="password" placeholder="Password">
         <button onclick="login()">Sign in</button>
-        <p id="login-error"></p>
+        <p id="login-error" style="font-size:12px; margin-top:15px;"></p>
     </div>
 </div>
 
 <div id="app">
     <div id="sidebar">
-        <h3>3D World Wide</h3>
-        <p id="sidebar-user-email" style="font-size:12px; color:var(--text-muted); padding-left:15px;"></p>
+        <h3 style="padding-left:15px;">3D World Wide</h3>
+        <p id="sidebar-user-email" style="font-size:12px; color:var(--text-muted); padding-left:15px; margin-bottom:25px;"></p>
         <div class="nav-item active" onclick="showPage('active', this)">Active Orders</div>
         <div class="nav-item" onclick="showPage('create', this)">Create New Order</div>
         <div class="nav-item" onclick="showPage('completed', this)">Completed</div>
         <div class="nav-item" onclick="showPage('delivered', this)">Delivered</div>
-        <div style="flex:1"></div>
-        <div class="nav-item" onclick="logout()" style="color:var(--danger)">Logout</div>
+        <div style="flex:1;"></div>
+        <div class="nav-item" onclick="logout()" style="color:var(--danger);">Logout</div>
     </div>
     <div id="content"><div id="content-inner"></div></div>
 </div>
@@ -131,8 +135,10 @@
         const email = document.getElementById("login-email").value;
         const password = document.getElementById("login-password").value;
         const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) { document.getElementById("login-error").innerText = "Error: " + error.message; } 
-        else { loadApp(); }
+        if (error) {
+            document.getElementById("login-error").innerText = "Invalid Credentials";
+            document.getElementById("login-error").style.color = "var(--danger)";
+        } else { loadApp(); }
     }
 
     async function logout() { await sb.auth.signOut(); location.reload(); }
@@ -153,30 +159,34 @@
     async function loadOrders(status) {
         const { data } = await sb.from("orders").select("*").eq("status", status).order("created_at", { ascending: false });
         let html = `<h2>${status} Orders</h2>`;
-        data?.forEach(o => {
-            const paymentBadge = o.payment_needed ? `<span class="badge pay-needed">UNPAID</span>` : `<span class="badge pay-ok">PAID</span>`;
-            html += `
-                <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
-                    <div class="order-header">
-                        <div>
-                            <strong style="font-size:18px;">${o.item_name}</strong> ${paymentBadge}<br>
-                            <span style="font-size:13px; color:var(--text-muted)">Customer: ${o.customer_name} | Cost: $${o.cost || 0}</span>
+        if (!data || data.length === 0) { html += `<p style="color:var(--text-muted)">No ${status.toLowerCase()} orders found.</p>`; }
+        else {
+            data.forEach(o => {
+                const payBadge = o.payment_needed ? `<span class="badge pay-needed">UNPAID</span>` : `<span class="badge pay-ok">PAID</span>`;
+                html += `
+                    <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
+                        <div class="order-header">
+                            <div>
+                                <strong style="font-size:18px; color:#fff;">${o.item_name || 'Unnamed'}</strong> ${payBadge}<br>
+                                <span style="font-size:13px; color:var(--text-muted)">Customer: ${o.customer_name} | Cost: $${o.cost || 0}</span>
+                            </div>
+                            <span class="badge status-active">${o.status}</span>
                         </div>
-                        <span class="badge status-active">${o.status}</span>
-                    </div>
-                    <div class="order-body">
-                        <p><strong>Contact:</strong> ${o.customer_email} | ${o.phone}</p>
-                        <p><strong>Details:</strong> ${o.material} - ${o.color} (Qty: ${o.quantity})</p>
-                        <p><strong>Notes:</strong> ${o.notes || "None"}</p>
-                        <div style="margin-top:10px">
-                            ${status === 'Active' ? `<button class="btn-action" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Complete</button>` : ''}
-                            ${o.payment_needed ? `<button class="btn-action" style="background:var(--success); color:white" onclick="event.stopPropagation(); markAsPaid('${o.id}')">Mark as Paid</button>` : ''}
-                            <button class="btn-action" style="background:rgba(239,68,68,0.2); color:#fca5a5" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
+                        <div class="order-body">
+                            <p><strong>Contact:</strong> ${o.customer_email} | ${o.phone}</p>
+                            <p><strong>Specs:</strong> ${o.material} - ${o.color} (Qty: ${o.quantity})</p>
+                            <p><strong>Notes:</strong> ${o.notes || "None"}</p>
+                            <div style="margin-top:15px;">
+                                ${status === 'Active' ? `<button class="btn-action" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Complete Order</button>` : ''}
+                                ${status === 'Completed' ? `<button class="btn-action" style="background:var(--accent-gradient); color:white;" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Delivered')">Mark Delivered</button>` : ''}
+                                ${o.payment_needed ? `<button class="btn-action" style="background:var(--success); color:white" onclick="event.stopPropagation(); markAsPaid('${o.id}')">Mark as Paid</button>` : ''}
+                                <button class="btn-action" style="background:rgba(239,68,68,0.2); color:#fca5a5" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
+                            </div>
                         </div>
-                    </div>
-                </div>`;
-        });
-        document.getElementById("content-inner").innerHTML = html || "No orders.";
+                    </div>`;
+            });
+        }
+        document.getElementById("content-inner").innerHTML = html;
     }
 
     function renderCreateOrder() {
@@ -189,7 +199,7 @@
                     <input id="cost" type="number" step="0.01" placeholder="Cost ($)">
                     <div class="checkbox-container">
                         <input type="checkbox" id="payment_needed" checked>
-                        <label for="payment_needed" style="font-size:13px;">Payment Needed?</label>
+                        <label for="payment_needed" style="font-size:13px; color:var(--text-muted)">Payment Needed?</label>
                     </div>
                 </div>
                 <div style="display:flex; gap:10px;">
@@ -200,9 +210,11 @@
                     <input id="material" placeholder="Material">
                     <input id="color" placeholder="Color">
                 </div>
-                <input id="quantity" type="number" value="1">
-                <select id="priority"><option>Normal</option><option>High</option></select>
-                <textarea id="notes" placeholder="Notes" rows="3"></textarea>
+                <div style="display:flex; gap:10px;">
+                    <input id="quantity" type="number" value="1">
+                    <select id="priority"><option>Normal</option><option>High</option><option>Urgent</option></select>
+                </div>
+                <textarea id="notes" placeholder="Additional Notes..." rows="3"></textarea>
                 <button onclick="createOrder()">Submit Order</button>
             </div>`;
     }
@@ -217,7 +229,7 @@
             phone: document.getElementById("phone").value,
             material: document.getElementById("material").value,
             color: document.getElementById("color").value,
-            quantity: parseInt(document.getElementById("quantity").value),
+            quantity: parseInt(document.getElementById("quantity").value) || 1,
             priority: document.getElementById("priority").value,
             status: "Active",
             notes: document.getElementById("notes").value
@@ -233,11 +245,12 @@
 
     async function markAsPaid(id) {
         await sb.from("orders").update({ payment_needed: false }).eq("id", id);
-        showPage('active');
+        const activeNav = document.querySelector('.nav-item.active').innerText.split(' ')[0].toLowerCase();
+        showPage(activeNav === 'active' ? 'active' : activeNav);
     }
 
     async function deleteOrder(id) {
-        if(confirm("Delete?")) { await sb.from("orders").delete().eq("id", id); showPage('active'); }
+        if(confirm("Permanently delete this order?")) { await sb.from("orders").delete().eq("id", id); showPage('active'); }
     }
 
     sb.auth.getSession().then(({ data }) => { if (data.session) loadApp(); });
