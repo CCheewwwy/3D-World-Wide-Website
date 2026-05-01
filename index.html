@@ -50,9 +50,9 @@
 
     /* DASHBOARD LAYOUT */
     #app {
-        display: none;
+        display: none; /* FIXED */
         height: 100vh;
-        display: flex;
+        flex-direction: row;
     }
 
     /* SIDEBAR */
@@ -136,14 +136,12 @@
         <div class="nav-item" onclick="logout()">Logout</div>
     </div>
 
-    <div id="content">
-        <!-- Pages will be injected here -->
-    </div>
+    <div id="content"></div>
 </div>
 
 <script>
-/* INIT SUPABASE */
-const supabase = supabase.createClient(
+/* INIT SUPABASE — FIXED */
+const sb = window.supabase.createClient(
     "https://tottpqebhmuaemnngvrz.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvdHRwcWViaG11YWVtbm5ndnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjA4NDAsImV4cCI6MjA5MzIzNjg0MH0.T4tjFt-_QcGlZtA4cfdQDmujWXBA8r9Z4SqeGpJ02hU"
 );
@@ -153,7 +151,7 @@ async function login() {
     const email = document.getElementById("login-email").value;
     const password = document.getElementById("login-password").value;
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await sb.auth.signInWithPassword({ email, password });
 
     if (error) {
         document.getElementById("login-error").innerText = "Invalid login.";
@@ -164,12 +162,12 @@ async function login() {
 
 /* LOGOUT */
 async function logout() {
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
     location.reload();
 }
 
 /* SESSION CHECK */
-supabase.auth.getSession().then(({ data }) => {
+sb.auth.getSession().then(({ data }) => {
     if (data.session) loadApp();
 });
 
@@ -222,14 +220,14 @@ async function createOrder() {
         rush: false
     };
 
-    await supabase.from("orders").insert(order);
+    await sb.from("orders").insert(order);
     alert("Order created!");
     showPage("active");
 }
 
 /* LOAD ORDERS */
 async function loadOrders(status) {
-    const { data } = await supabase
+    const { data } = await sb
         .from("orders")
         .select("*")
         .eq("status", status)
@@ -260,7 +258,7 @@ async function loadOrders(status) {
 
 /* MARK COMPLETED */
 async function markCompleted(id) {
-    await supabase.from("orders").update({ status: "Completed" }).eq("id", id);
+    await sb.from("orders").update({ status: "Completed" }).eq("id", id);
     showPage("completed");
 }
 
@@ -269,7 +267,7 @@ async function markDelivered(id) {
     const deliveredAt = new Date();
     const autoDeleteAt = new Date(deliveredAt.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    await supabase.from("orders").update({
+    await sb.from("orders").update({
         status: "Delivered",
         delivered_at: deliveredAt.toISOString(),
         auto_delete_at: autoDeleteAt.toISOString()
