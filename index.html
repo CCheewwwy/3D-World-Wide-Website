@@ -15,7 +15,7 @@
 
 :root {
     --bg-dark: #020617;
-    --bg-card: #020617;
+    --bg-card: #0f172a;
     --accent: #4f46e5;
     --accent-soft: rgba(79, 70, 229, 0.25);
     --accent-strong: rgba(79, 70, 229, 0.6);
@@ -163,7 +163,7 @@ body {
 #content-inner {
     max-width: 1100px;
     margin: 0 auto;
-    background: #0f172a;
+    background: var(--bg-card);
     border-radius: 18px;
     padding: 22px;
     box-shadow: 0 0 0 1px rgba(31,41,55,0.9), 0 24px 60px rgba(0,0,0,0.4);
@@ -176,37 +176,107 @@ body {
 }
 
 /* ------------------------------ */
-/* TABLES */
+/* ORDER CARDS */
 /* ------------------------------ */
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 16px;
-    background: rgba(15, 23, 42, 0.96);
+.order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.order-card {
+    background: rgba(15, 23, 42, 0.95);
     border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow:
+        0 0 0 1px rgba(31,41,55,0.8),
+        0 12px 30px rgba(0,0,0,0.4);
+    cursor: pointer;
     overflow: hidden;
 }
 
-table th {
-    background: #1e3a8a;
-    color: white;
-    padding: 11px;
+.order-card:hover {
+    background: rgba(15, 23, 42, 1);
+    transform: translateY(-2px);
 }
 
-table td {
-    padding: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-table tr:hover {
-    background: rgba(255,255,255,0.05);
+.order-name {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-/* ------------------------------ */
-/* BUTTONS */
-/* ------------------------------ */
+.order-sub {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
 
+.order-body {
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #d1d5db;
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.order-body.open {
+    display: block;
+    animation: expand 0.35s ease forwards;
+}
+
+.order-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+}
+
+.order-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 8px;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-active {
+    background: rgba(59,130,246,0.15);
+    color: #60a5fa;
+}
+
+.status-completed {
+    background: rgba(16,185,129,0.15);
+    color: #6ee7b7;
+}
+
+.status-delivered {
+    background: rgba(234,179,8,0.15);
+    color: #facc15;
+}
+
+/* Buttons */
 .btn-small {
     padding: 6px 10px;
     font-size: 11px;
@@ -263,6 +333,11 @@ table tr:hover {
     to { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes expand {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes shake {
     0% { transform: translateX(0); }
     25% { transform: translateX(-6px); }
@@ -315,8 +390,22 @@ table tr:hover {
         <div id="content-inner"></div>
     </div>
 </div>
-
 <script>
+/* ------------------------------ */
+/* ICONS */
+/* ------------------------------ */
+
+const icons = {
+    user: `<svg width="16" height="16" fill="#60a5fa"><path d="M8 9a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.33 0-6 1.34-6 3v1h12v-1c0-1.66-2.67-3-6-3Z"/></svg>`,
+    material: `<svg width="16" height="16" fill="#a78bfa"><path d="M2 6l6-4 6 4-6 4-6-4Zm0 4l6 4 6-4"/></svg>`,
+    color: `<svg width="16" height="16" fill="#f472b6"><circle cx="8" cy="8" r="6"/></svg>`,
+    qty: `<svg width="16" height="16" fill="#34d399"><path d="M3 3h10v2H3Zm0 4h10v2H3Zm0 4h10v2H3Z"/></svg>`,
+    priority: `<svg width="16" height="16" fill="#facc15"><path d="M8 2l6 12H2Z"/></svg>`,
+    notes: `<svg width="16" height="16" fill="#93c5fd"><path d="M3 2h10v12H3Zm2 3h6v2H5Zm0 4h6v2H5Z"/></svg>`,
+    phone: `<svg width="16" height="16" fill="#4ade80"><path d="M4 2h3l1 3-2 1a9 9 0 0 0 4 4l1-2 3 1v3c0 1-1 2-2 2A12 12 0 0 1 2 4c0-1 1-2 2-2Z"/></svg>`,
+    email: `<svg width="16" height="16" fill="#38bdf8"><path d="M2 4h12v8H2Zm6 4L2 4h12Z"/></svg>`
+};
+
 /* ------------------------------ */
 /* SUPABASE INIT */
 /* ------------------------------ */
@@ -340,7 +429,6 @@ async function login() {
         document.getElementById("login-error").style.color = "#ef4444";
         document.getElementById("login-error").innerText = "Invalid email or password.";
 
-        // Shake animation
         document.getElementById("login-box").classList.add("shake");
         setTimeout(() => {
             document.getElementById("login-box").classList.remove("shake");
@@ -349,14 +437,11 @@ async function login() {
         return;
     }
 
-    // Welcome message
     document.getElementById("login-error").style.color = "#22c55e";
     document.getElementById("login-error").innerText = `Welcome, ${email}`;
 
-    // Fade out login screen
     document.getElementById("login-screen").classList.add("fade-out");
 
-    // Load dashboard after animation
     setTimeout(() => {
         loadApp();
     }, 700);
@@ -382,10 +467,8 @@ async function loadApp() {
     app.style.display = "flex";
     app.classList.add("fade-in");
 
-    // Sidebar animation
     document.getElementById("sidebar").classList.add("slide-in");
 
-    // Show email in sidebar
     const { data } = await sb.auth.getUser();
     if (data?.user?.email) {
         document.getElementById("sidebar-user-email").innerText = data.user.email;
@@ -415,135 +498,3 @@ function showPage(page, el) {
 function setContent(title, html) {
     const content = document.getElementById("content-inner");
     content.style.opacity = 0;
-    content.style.transform = "translateY(20px)";
-
-    content.innerHTML = `<h2>${title}</h2>${html}`;
-
-    setTimeout(() => {
-        content.classList.add("fade-up");
-    }, 50);
-}
-
-/* ------------------------------ */
-/* CREATE ORDER */
-/* ------------------------------ */
-
-function renderCreateOrder() {
-    setContent("Create Order", `
-        <input id="name" placeholder="Customer Name">
-        <input id="email" placeholder="Customer Email">
-        <input id="phone" placeholder="Phone">
-        <input id="material" placeholder="Material">
-        <input id="color" placeholder="Color">
-        <input id="quantity" type="number" placeholder="Quantity">
-        <select id="priority">
-            <option>Normal</option>
-            <option>High</option>
-        </select>
-        <textarea id="notes" placeholder="Notes"></textarea>
-        <button onclick="createOrder()">Create Order</button>
-    `);
-}
-
-async function createOrder() {
-    const order = {
-        customer_name: document.getElementById("name").value,
-        customer_email: document.getElementById("email").value,
-        phone: document.getElementById("phone").value,
-        material: document.getElementById("material").value,
-        color: document.getElementById("color").value,
-        quantity: parseInt(document.getElementById("quantity").value),
-        priority: document.getElementById("priority").value,
-        status: "Active",
-        notes: document.getElementById("notes").value
-    };
-
-    await sb.from("orders").insert(order);
-    alert("Order created!");
-    loadOrders("Active");
-}
-
-/* ------------------------------ */
-/* LOAD ORDERS */
-/* ------------------------------ */
-
-async function loadOrders(status) {
-    const { data } = await sb
-        .from("orders")
-        .select("*")
-        .eq("status", status)
-        .order("created_at", { ascending: false });
-
-    let rows = "";
-
-    data.forEach(o => {
-        rows += `
-            <tr>
-                <td>${o.customer_name}</td>
-                <td>${o.material}</td>
-                <td>${o.quantity}</td>
-                <td>${o.status}</td>
-                <td>
-                    <button class="btn-small btn-complete" onclick="markCompleted('${o.id}')">Complete</button>
-                    <button class="btn-small btn-deliver" onclick="markDelivered('${o.id}')">Deliver</button>
-                    <button class="btn-small btn-delete" onclick="deleteOrder('${o.id}')">Delete</button>
-                </td>
-            </tr>
-        `;
-    });
-
-    setContent(`${status} Orders`, `
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Material</th>
-                <th>Qty</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            ${rows}
-        </table>
-    `);
-}
-
-/* ------------------------------ */
-/* UPDATE STATUS */
-/* ------------------------------ */
-
-async function markCompleted(id) {
-    await sb.from("orders").update({ status: "Completed" }).eq("id", id);
-    loadOrders("Completed");
-}
-
-async function markDelivered(id) {
-    const deliveredAt = new Date();
-    const autoDeleteAt = new Date(deliveredAt.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-    await sb.from("orders").update({
-        status: "Delivered",
-        delivered_at: deliveredAt.toISOString(),
-        auto_delete_at: autoDeleteAt.toISOString()
-    }).eq("id", id);
-
-    loadOrders("Delivered");
-}
-
-/* ------------------------------ */
-/* DELETE ORDER */
-/* ------------------------------ */
-
-async function deleteOrder(id) {
-    if (!confirm("Delete this order permanently?")) return;
-
-    await sb.from("orders").delete().eq("id", id);
-
-    const activePage = document.querySelector(".nav-item.active").dataset.page;
-
-    if (activePage === "active") loadOrders("Active");
-    if (activePage === "completed") loadOrders("Completed");
-    if (activePage === "delivered") loadOrders("Delivered");
-}
-</script>
-
-</body>
-</html>
