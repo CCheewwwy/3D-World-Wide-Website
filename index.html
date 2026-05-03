@@ -27,39 +27,46 @@
             color: var(--text-main); height: 100vh; overflow: hidden;
         }
 
-        /* --- UI COMPONENTS --- */
+        /* --- LOGIN SCREEN --- */
         #login-screen { display: flex; height: 100vh; align-items: center; justify-content: center; }
-        #login-box { background: #111827; padding: 35px; border-radius: 18px; width: 360px; text-align: center; border: 1px solid var(--border); }
+        #login-box { 
+            background: #111827; padding: 35px; border-radius: 18px; width: 360px; 
+            text-align: center; border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
         
         input, select, textarea { width: 100%; padding: 12px; margin-top: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(15, 23, 42, 0.8); color: white; outline: none; }
         
         button { width: 100%; padding: 12px; margin-top: 20px; background: var(--accent-gradient); border: none; color: white; border-radius: 30px; cursor: pointer; font-weight: 600; }
 
+        /* --- APP LAYOUT --- */
         #app { display: none; height: 100vh; }
         #sidebar { width: 260px; background: #020617; padding: 25px 15px; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .nav-item { padding: 12px 15px; cursor: pointer; border-radius: 10px; color: var(--text-muted); margin-bottom: 5px; }
+        .nav-item { padding: 12px 15px; cursor: pointer; border-radius: 10px; color: var(--text-muted); margin-bottom: 5px; font-size: 14px; }
         .nav-item.active { background: rgba(255, 255, 255, 0.08); color: white; }
 
         #content { flex: 1; padding: 40px; overflow-y: auto; }
         #content-inner { max-width: 900px; margin: 0 auto; }
 
-        .order-card { background: var(--bg-card); border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); cursor: pointer; }
+        /* --- ORDER CARDS --- */
+        .order-card { background: var(--bg-card); border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); cursor: pointer; position: relative; }
+        .order-card:hover { border-color: rgba(255,255,255,0.2); }
         .order-body { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 14px; }
         .order-body.open { display: block; }
 
+        /* --- UI ELEMENTS --- */
         .id-pill { background: rgba(79, 70, 229, 0.15); color: #818cf8; padding: 2px 8px; border-radius: 6px; font-weight: bold; cursor: copy; border: 1px solid rgba(79, 70, 229, 0.3); }
-        
         .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
         .pay-needed { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
         .pay-ok { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-
+        
         .btn-action { width: auto; margin-top: 0; margin-right: 8px; padding: 6px 14px; font-size: 12px; display: inline-block; border-radius: 6px; }
         .btn-email { background: #3b82f6; color: white; text-decoration: none; display: inline-block; }
         
         .checkbox-container { display: flex; align-items: center; gap: 10px; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; }
         .checkbox-container input { width: auto; margin-top: 0; cursor: pointer; }
 
-        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white; padding: 10px 20px; border-radius: 8px; transform: translateY(100px); transition: 0.3s; z-index: 1000; }
+        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white; padding: 10px 20px; border-radius: 8px; transform: translateY(100px); transition: 0.3s; z-index: 1000; font-size: 13px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -68,16 +75,19 @@
 
 <div id="login-screen">
     <div id="login-box">
-        <h2>3D Admin</h2>
+        <h2 style="margin:0 0 10px 0;">3D Admin</h2>
+        <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Please sign in to continue</p>
         <input id="login-email" type="email" placeholder="Admin email">
         <input id="login-password" type="password" placeholder="Password">
         <button onclick="login()">Sign in</button>
+        <p id="login-error" style="font-size:12px; margin-top:15px; color:var(--danger);"></p>
     </div>
 </div>
 
 <div id="app">
     <div id="sidebar">
-        <h3>3D World Wide</h3>
+        <h3 style="padding-left:15px;">3D World Wide</h3>
+        <p id="sidebar-user-email" style="font-size:11px; color:var(--text-muted); padding-left:15px; margin-bottom:25px;"></p>
         <div class="nav-item active" onclick="showPage('active', this)">Active Orders</div>
         <div class="nav-item" onclick="showPage('create', this)">Create New Order</div>
         <div class="nav-item" onclick="showPage('completed', this)">Completed</div>
@@ -94,26 +104,51 @@
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvdHRwcWViaG11YWVtbm5ndnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjA4NDAsImV4cCI6MjA5MzIzNjg0MH0.T4tjFt-_QcGlZtA4cfdQDmujWXBA8r9Z4SqeGpJ02hU"
     );
 
+    // --- AUTH LOGIC ---
     async function login() {
-        const { error } = await sb.auth.signInWithPassword({
-            email: document.getElementById("login-email").value,
-            password: document.getElementById("login-password").value
-        });
-        if (error) alert("Login failed"); else loadApp();
+        const email = document.getElementById("login-email").value;
+        const password = document.getElementById("login-password").value;
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        
+        if (error) {
+            document.getElementById("login-error").innerText = "Login failed: " + error.message;
+        } else {
+            loadApp();
+        }
+    }
+
+    async function checkUser() {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) {
+            loadApp();
+        }
     }
 
     function loadApp() {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("app").style.display = "flex";
+        sb.auth.getUser().then(({data}) => {
+            if(data.user) document.getElementById("sidebar-user-email").innerText = data.user.email;
+        });
         showPage('active');
     }
 
+    async function logout() {
+        await sb.auth.signOut();
+        location.reload();
+    }
+
+    // --- NAVIGATION ---
     function showPage(page, el) {
-        if (el) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+        if (el) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
         if (page === 'create') renderCreateOrder();
         else loadOrders(page.charAt(0).toUpperCase() + page.slice(1));
     }
 
+    // --- UTILITIES ---
     function copyID(e, id) {
         e.stopPropagation();
         navigator.clipboard.writeText(id);
@@ -141,37 +176,43 @@ Best regards,
         window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     }
 
+    // --- DATA OPERATIONS ---
     async function loadOrders(status) {
         const { data } = await sb.from("orders").select("*").eq("status", status).order("created_at", { ascending: false });
         let html = `<h2>${status} Orders</h2>`;
-        data?.forEach(o => {
-            const payBadge = o.payment_needed ? `<span class="badge pay-needed">UNPAID</span>` : `<span class="badge pay-ok">PAID</span>`;
-            html += `
-                <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <strong style="font-size:18px;">${o.item_name}</strong> ${payBadge}<br>
-                            <span style="font-size:13px; color:var(--text-muted)">
-                                ID: <span class="id-pill" onclick="copyID(event, '${o.order_id}')">#${o.order_id} 📋</span> 
-                                | ${o.customer_name} | $${o.cost}
-                            </span>
+        
+        if (!data || data.length === 0) {
+            html += `<p style="color:var(--text-muted)">No ${status.toLowerCase()} orders found.</p>`;
+        } else {
+            data.forEach(o => {
+                const payBadge = o.payment_needed ? `<span class="badge pay-needed">UNPAID</span>` : `<span class="badge pay-ok">PAID</span>`;
+                html += `
+                    <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <strong style="font-size:18px;">${o.item_name || 'Unnamed Item'}</strong> ${payBadge}<br>
+                                <span style="font-size:13px; color:var(--text-muted)">
+                                    ID: <span class="id-pill" onclick="copyID(event, '${o.order_id}')">#${o.order_id} 📋</span> 
+                                    | ${o.customer_name} | $${o.cost || 0}
+                                </span>
+                            </div>
+                            <button class="btn-action btn-email" onclick="sendThankYouEmail(event, '${o.customer_email}', '${o.order_id}', '${o.item_name}')">✉️ Send Email</button>
                         </div>
-                        <button class="btn-action btn-email" onclick="sendThankYouEmail(event, '${o.customer_email}', '${o.order_id}', '${o.item_name}')">✉️ Send Email</button>
-                    </div>
-                    <div class="order-body">
-                        <p><strong>Contact:</strong> ${o.customer_email} | ${o.phone || 'No Phone'}</p>
-                        <p><strong>Specs:</strong> ${o.material} - ${o.color} (Qty: ${o.quantity || 1}) | Priority: ${o.priority || 'Normal'}</p>
-                        <p><strong>Notes:</strong> ${o.notes || 'None'}</p>
-                        <div style="margin-top:15px;">
-                            ${status === 'Active' ? `<button class="btn-action" style="background:var(--accent);" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Mark Completed</button>` : ''}
-                            ${status === 'Completed' ? `<button class="btn-action" style="background:var(--success);" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Delivered')">Mark Delivered</button>` : ''}
-                            ${o.payment_needed ? `<button class="btn-action" style="background:var(--success);" onclick="event.stopPropagation(); markAsPaid('${o.id}')">Mark Paid</button>` : ''}
-                            <button class="btn-action" style="background:rgba(239, 68, 68, 0.2); color:#fca5a5" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
+                        <div class="order-body">
+                            <p><strong>Contact:</strong> ${o.customer_email} | ${o.phone || 'No phone provided'}</p>
+                            <p><strong>Specs:</strong> ${o.material} - ${o.color} (Qty: ${o.quantity || 1}) | Priority: ${o.priority || 'Normal'}</p>
+                            <p><strong>Notes:</strong> ${o.notes || 'None'}</p>
+                            <div style="margin-top:15px;">
+                                ${status === 'Active' ? `<button class="btn-action" style="background:var(--accent);" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Mark Completed</button>` : ''}
+                                ${status === 'Completed' ? `<button class="btn-action" style="background:var(--success);" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Delivered')">Mark Delivered</button>` : ''}
+                                ${o.payment_needed ? `<button class="btn-action" style="background:var(--success);" onclick="event.stopPropagation(); markAsPaid('${o.id}')">Mark Paid</button>` : ''}
+                                <button class="btn-action" style="background:rgba(239, 68, 68, 0.2); color:#fca5a5" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
+                            </div>
                         </div>
-                    </div>
-                </div>`;
-        });
-        document.getElementById("content-inner").innerHTML = html || `<p>No orders found.</p>`;
+                    </div>`;
+            });
+        }
+        document.getElementById("content-inner").innerHTML = html;
     }
 
     function renderCreateOrder() {
@@ -182,11 +223,17 @@ Best regards,
                 <input id="name" placeholder="Customer Name">
                 <div style="display:flex; gap:10px;">
                     <input id="cost" type="number" step="0.01" placeholder="Cost ($)">
-                    <div class="checkbox-container"><input type="checkbox" id="payment_needed" checked><label for="payment_needed" style="font-size:13px;">Payment Needed?</label></div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="payment_needed" checked>
+                        <label for="payment_needed" style="font-size:13px; color:var(--text-muted)">Payment Needed?</label>
+                    </div>
                 </div>
                 <div style="display:flex; gap:10px;"><input id="email" placeholder="Email"><input id="phone" placeholder="Phone"></div>
                 <div style="display:flex; gap:10px;"><input id="material" placeholder="Material"><input id="color" placeholder="Color"></div>
-                <div style="display:flex; gap:10px;"><input id="quantity" type="number" value="1"><select id="priority"><option>Normal</option><option>High</option><option>Urgent</option></select></div>
+                <div style="display:flex; gap:10px;">
+                    <input id="quantity" type="number" value="1">
+                    <select id="priority"><option>Normal</option><option>High</option><option>Urgent</option></select>
+                </div>
                 <textarea id="notes" placeholder="Additional Notes..." rows="3"></textarea>
                 <button onclick="createOrder()">Submit Order</button>
             </div>`;
@@ -209,8 +256,8 @@ Best regards,
             status: "Active",
             notes: document.getElementById("notes").value
         };
-        await sb.from("orders").insert(order);
-        showPage('active');
+        const { error } = await sb.from("orders").insert(order);
+        if(!error) showPage('active'); else alert("Error: " + error.message);
     }
 
     async function updateStatus(id, newStatus) {
@@ -224,11 +271,14 @@ Best regards,
     }
 
     async function deleteOrder(id) {
-        if(confirm("Permanently delete this order?")) { await sb.from("orders").delete().eq("id", id); showPage('active'); }
+        if(confirm("Permanently delete this order?")) {
+            await sb.from("orders").delete().eq("id", id);
+            showPage('active');
+        }
     }
 
-    function logout() { sb.auth.signOut(); location.reload(); }
-    sb.auth.getSession().then(({ data }) => { if (data.session) loadApp(); });
+    // Check for session on load
+    checkUser();
 </script>
 </body>
 </html>
