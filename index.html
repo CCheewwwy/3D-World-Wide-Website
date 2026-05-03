@@ -168,7 +168,7 @@
                         <div class="order-header">
                             <div>
                                 <strong style="font-size:18px; color:#fff;">${o.item_name || 'Unnamed'}</strong> ${payBadge}<br>
-                                <span style="font-size:13px; color:var(--text-muted)">Customer: ${o.customer_name} | Cost: $${o.cost || 0}</span>
+                                <span style="font-size:13px; color:var(--text-muted)">Order ID: <b>#${o.order_id || 'N/A'}</b> | Customer: ${o.customer_name} | Cost: $${o.cost || 0}</span>
                             </div>
                             <span class="badge status-active">${o.status}</span>
                         </div>
@@ -220,7 +220,11 @@
     }
 
     async function createOrder() {
+        // Generates a random 6-digit number
+        const generatedId = Math.floor(100000 + Math.random() * 900000);
+
         const order = {
+            order_id: generatedId,
             item_name: document.getElementById("item_name").value,
             customer_name: document.getElementById("name").value,
             cost: parseFloat(document.getElementById("cost").value) || 0,
