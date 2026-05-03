@@ -49,8 +49,15 @@
 
         .id-pill { background: rgba(79, 70, 229, 0.15); color: #818cf8; padding: 2px 8px; border-radius: 6px; font-weight: bold; cursor: copy; border: 1px solid rgba(79, 70, 229, 0.3); }
         
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .pay-needed { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .pay-ok { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+
         .btn-action { width: auto; margin-top: 0; margin-right: 8px; padding: 6px 14px; font-size: 12px; display: inline-block; border-radius: 6px; }
         .btn-email { background: #3b82f6; color: white; text-decoration: none; display: inline-block; }
+        
+        .checkbox-container { display: flex; align-items: center; gap: 10px; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; }
+        .checkbox-container input { width: auto; margin-top: 0; cursor: pointer; }
 
         #toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white; padding: 10px 20px; border-radius: 8px; transform: translateY(100px); transition: 0.3s; z-index: 1000; }
     </style>
@@ -115,7 +122,6 @@
         setTimeout(() => { toast.style.transform = "translateY(100px)"; }, 2000);
     }
 
-    // --- NEW EMAIL GENERATOR ---
     function sendThankYouEmail(e, email, orderID, itemName) {
         e.stopPropagation();
         const subject = encodeURIComponent(`Your 3D World Wide Order: ${itemName}`);
@@ -139,29 +145,33 @@ Best regards,
         const { data } = await sb.from("orders").select("*").eq("status", status).order("created_at", { ascending: false });
         let html = `<h2>${status} Orders</h2>`;
         data?.forEach(o => {
+            const payBadge = o.payment_needed ? `<span class="badge pay-needed">UNPAID</span>` : `<span class="badge pay-ok">PAID</span>`;
             html += `
                 <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div>
-                            <strong style="font-size:18px;">${o.item_name}</strong><br>
+                            <strong style="font-size:18px;">${o.item_name}</strong> ${payBadge}<br>
                             <span style="font-size:13px; color:var(--text-muted)">
                                 ID: <span class="id-pill" onclick="copyID(event, '${o.order_id}')">#${o.order_id} 📋</span> 
-                                | ${o.customer_name}
+                                | ${o.customer_name} | $${o.cost}
                             </span>
                         </div>
                         <button class="btn-action btn-email" onclick="sendThankYouEmail(event, '${o.customer_email}', '${o.order_id}', '${o.item_name}')">✉️ Send Email</button>
                     </div>
                     <div class="order-body">
-                        <p><strong>Email:</strong> ${o.customer_email} | <strong>Material:</strong> ${o.material}</p>
-                        <p><strong>Notes:</strong> ${o.notes || 'N/A'}</p>
-                        <div style="margin-top:10px;">
-                            <button class="btn-action" style="background:var(--success); color:white;" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Complete</button>
-                            <button class="btn-action" style="background:var(--danger); color:white;" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
+                        <p><strong>Contact:</strong> ${o.customer_email} | ${o.phone || 'No Phone'}</p>
+                        <p><strong>Specs:</strong> ${o.material} - ${o.color} (Qty: ${o.quantity || 1}) | Priority: ${o.priority || 'Normal'}</p>
+                        <p><strong>Notes:</strong> ${o.notes || 'None'}</p>
+                        <div style="margin-top:15px;">
+                            ${status === 'Active' ? `<button class="btn-action" style="background:var(--accent);" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Mark Completed</button>` : ''}
+                            ${status === 'Completed' ? `<button class="btn-action" style="background:var(--success);" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Delivered')">Mark Delivered</button>` : ''}
+                            ${o.payment_needed ? `<button class="btn-action" style="background:var(--success);" onclick="event.stopPropagation(); markAsPaid('${o.id}')">Mark Paid</button>` : ''}
+                            <button class="btn-action" style="background:rgba(239, 68, 68, 0.2); color:#fca5a5" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
                         </div>
                     </div>
                 </div>`;
         });
-        document.getElementById("content-inner").innerHTML = html;
+        document.getElementById("content-inner").innerHTML = html || `<p>No orders found.</p>`;
     }
 
     function renderCreateOrder() {
@@ -170,11 +180,14 @@ Best regards,
             <div style="background: var(--bg-card); padding: 25px; border-radius: 14px; border: 1px solid var(--border);">
                 <input id="item_name" placeholder="Item Name">
                 <input id="name" placeholder="Customer Name">
-                <input id="email" placeholder="Customer Email">
-                <input id="cost" type="number" step="0.01" placeholder="Cost ($)">
-                <input id="material" placeholder="Material">
-                <input id="color" placeholder="Color">
-                <textarea id="notes" placeholder="Notes..."></textarea>
+                <div style="display:flex; gap:10px;">
+                    <input id="cost" type="number" step="0.01" placeholder="Cost ($)">
+                    <div class="checkbox-container"><input type="checkbox" id="payment_needed" checked><label for="payment_needed" style="font-size:13px;">Payment Needed?</label></div>
+                </div>
+                <div style="display:flex; gap:10px;"><input id="email" placeholder="Email"><input id="phone" placeholder="Phone"></div>
+                <div style="display:flex; gap:10px;"><input id="material" placeholder="Material"><input id="color" placeholder="Color"></div>
+                <div style="display:flex; gap:10px;"><input id="quantity" type="number" value="1"><select id="priority"><option>Normal</option><option>High</option><option>Urgent</option></select></div>
+                <textarea id="notes" placeholder="Additional Notes..." rows="3"></textarea>
                 <button onclick="createOrder()">Submit Order</button>
             </div>`;
     }
@@ -186,10 +199,15 @@ Best regards,
             item_name: document.getElementById("item_name").value,
             customer_name: document.getElementById("name").value,
             customer_email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
             cost: parseFloat(document.getElementById("cost").value) || 0,
+            payment_needed: document.getElementById("payment_needed").checked,
             material: document.getElementById("material").value,
             color: document.getElementById("color").value,
-            status: "Active"
+            quantity: parseInt(document.getElementById("quantity").value) || 1,
+            priority: document.getElementById("priority").value,
+            status: "Active",
+            notes: document.getElementById("notes").value
         };
         await sb.from("orders").insert(order);
         showPage('active');
@@ -197,11 +215,16 @@ Best regards,
 
     async function updateStatus(id, newStatus) {
         await sb.from("orders").update({ status: newStatus }).eq("id", id);
+        showPage(newStatus.toLowerCase());
+    }
+
+    async function markAsPaid(id) {
+        await sb.from("orders").update({ payment_needed: false }).eq("id", id);
         showPage('active');
     }
 
     async function deleteOrder(id) {
-        if(confirm("Delete?")) { await sb.from("orders").delete().eq("id", id); showPage('active'); }
+        if(confirm("Permanently delete this order?")) { await sb.from("orders").delete().eq("id", id); showPage('active'); }
     }
 
     function logout() { sb.auth.signOut(); location.reload(); }
