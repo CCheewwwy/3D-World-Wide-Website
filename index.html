@@ -24,42 +24,36 @@
         * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
         body { margin: 0; background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; }
 
-        /* App Layout */
         #app { display: none; height: 100vh; flex-direction: row; }
         #sidebar { width: 260px; background: var(--bg-sidebar); padding: 40px 24px; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; }
         #content { flex: 1; padding: 40px; overflow-y: auto; }
         #content-inner { max-width: 1100px; margin: 0 auto; }
 
-        /* Navigation */
         .nav-brand { font-weight: 800; font-size: 18px; margin-bottom: 40px; background: linear-gradient(to right, #fff, #64748b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .nav-item { padding: 12px 16px; cursor: pointer; border-radius: 12px; color: var(--text-muted); margin-bottom: 6px; font-size: 14px; display: flex; align-items: center; gap: 12px; }
         .nav-item.active { background: rgba(139, 92, 246, 0.1); color: var(--accent-primary); border: 1px solid rgba(139, 92, 246, 0.2); }
 
-        /* Order Cards */
         .order-card { background: var(--glass); backdrop-filter: blur(16px); border-radius: 16px; margin-bottom: 16px; border: 1px solid var(--glass-border); overflow: hidden; }
         .card-main { padding: 20px 24px; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 0.5fr; align-items: center; gap: 15px; cursor: pointer; }
         .card-details { max-height: 0; overflow: hidden; background: rgba(0,0,0,0.2); transition: max-height 0.3s ease-out; }
         .card-details.open { max-height: 1200px; padding: 24px; border-top: 1px solid var(--glass-border); }
 
-        /* Labels & Inputs */
         .info-group label { display: block; font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.5px; }
         .info-group span { font-weight: 600; font-size: 14px; color: #fff; }
         
         input, select, textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; margin-top: 5px; outline: none; }
         input:focus { border-color: var(--accent-primary); }
 
-        /* Badges */
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
         .rush-badge { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
         .pay-badge { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
 
-        /* Buttons */
-        .btn-prime { background: var(--accent-primary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px; }
-        .action-area { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-prime { background: var(--accent-primary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        .btn-success { background: var(--success); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        .action-area { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .btn-sub { background: transparent; border: 1px solid var(--glass-border); color: var(--text-muted); padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; }
         .btn-sub:hover { border-color: var(--danger); color: var(--danger); }
 
-        /* Mobile Scaling */
         @media (max-width: 768px) {
             #app { flex-direction: column; }
             #sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; flex-direction: row; padding: 10px; border-top: 1px solid var(--glass-border); justify-content: space-around; z-index: 1000; background: var(--bg-sidebar); }
@@ -81,7 +75,7 @@
         <h2 style="margin:0 0 24px 0;">3D Terminal</h2>
         <input id="login-email" type="email" placeholder="Admin Email">
         <input id="login-password" type="password" placeholder="Password">
-        <button onclick="login()" class="btn-prime">Initialize</button>
+        <button onclick="login()" class="btn-prime" style="width:100%; margin-top:20px;">Initialize</button>
         <p id="login-error" style="color:var(--danger); font-size:12px; margin-top:15px;"></p>
     </div>
 </div>
@@ -169,8 +163,9 @@
                             <p style="font-size:13px; margin:5px 0;">${o.notes || 'No internal notes.'}</p>
                         </div>
                         <div class="action-area">
-                            ${status === 'Active' ? `<button class="btn-prime" style="margin:0; flex:1;" onclick="updateStatus('${o.id}', 'Completed')">Mark Done</button>` : ''}
-                            ${status === 'Completed' ? `<button class="btn-prime" style="margin:0; flex:1;" onclick="updateStatus('${o.id}', 'Delivered')">Mark Delivered</button>` : ''}
+                            ${status === 'Active' ? `<button class="btn-prime" style="flex:1;" onclick="updateStatus('${o.id}', 'Completed')">Mark Done</button>` : ''}
+                            ${status === 'Completed' ? `<button class="btn-prime" style="flex:1;" onclick="updateStatus('${o.id}', 'Delivered')">Ship Order</button>` : ''}
+                            ${o.payment_needed ? `<button class="btn-success" onclick="markPaid('${o.id}')">Mark Paid</button>` : ''}
                             <button class="btn-sub" onclick="deleteOrder('${o.id}')">Delete</button>
                         </div>
                     </div>
@@ -185,7 +180,7 @@
             <h2>New Order Entry</h2>
             <div style="background:var(--glass); padding:30px; border-radius:20px; border:1px solid var(--glass-border);">
                 <div class="grid-2">
-                    <div class="info-group"><label>item_name (Lowercase)</label><input id="item_name"></div>
+                    <div class="info-group"><label>Item Name</label><input id="item_name"></div>
                     <div class="info-group"><label>Customer Name</label><input id="name"></div>
                 </div>
                 <div class="grid-3">
@@ -194,7 +189,7 @@
                     <div class="info-group"><label>Order ID (Numeric)</label><input id="order_id" type="number"></div>
                 </div>
                 <div class="grid-3">
-                    <div class="info-group"><label>Print Type</label><input id="print_type" placeholder="e.g. Resin, FDM"></div>
+                    <div class="info-group"><label>Print Type</label><input id="print_type"></div>
                     <div class="info-group"><label>Material</label><input id="material"></div>
                     <div class="info-group"><label>Color</label><input id="color"></div>
                 </div>
@@ -214,13 +209,13 @@
                     <div class="info-group"><label>Payment Needed?</label><select id="payment_needed"><option value="true">Yes</option><option value="false">No</option></select></div>
                 </div>
                 <div class="info-group"><label>Notes</label><textarea id="notes" rows="3"></textarea></div>
-                <button onclick="createOrder()" class="btn-prime">Create Order</button>
+                <button onclick="createOrder()" class="btn-prime" style="width:100%; margin-top:20px;">Create Order</button>
             </div>`;
     }
 
     async function createOrder() {
         const order = {
-            item_name: document.getElementById("item_name").value.toLowerCase(),
+            item_name: document.getElementById("item_name").value,
             customer_name: document.getElementById("name").value,
             customer_email: document.getElementById("email").value,
             phone: document.getElementById("phone").value,
@@ -238,6 +233,11 @@
         };
         await sb.from("orders").insert(order);
         showPage('active');
+    }
+
+    async function markPaid(id) {
+        await sb.from("orders").update({ payment_needed: false }).eq("id", id);
+        location.reload(); 
     }
 
     async function updateStatus(id, newStatus) {
