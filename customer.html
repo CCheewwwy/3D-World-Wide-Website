@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Track Your Order | 3D World Wide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <style>
+        :root {
+            --bg: #020617; --card: #0f172a; --accent: #4f46e5;
+            --text: #e5e7eb; --border: rgba(255, 255, 255, 0.1);
+            --success: #22c55e;
+        }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        .container { max-width: 500px; width: 100%; text-align: center; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: white; margin-bottom: 10px; outline: none; }
+        button { width: 100%; padding: 15px; border-radius: 30px; border: none; background: linear-gradient(135deg, #4f46e5, #22c55e); color: white; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        
+        .status-card { background: var(--card); padding: 25px; border-radius: 16px; border: 1px solid var(--border); text-align: left; margin-top: 20px; position: relative; }
+        
+        /* Progress Bar Styles */
+        .progress-container { background: rgba(255,255,255,0.1); height: 8px; border-radius: 10px; margin: 20px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 1s ease-in-out; }
+        
+        .steps { display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; float: right; }
+        .unpaid { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        .paid { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Track Order</h1>
+    <input id="lookup-email" type="email" placeholder="Enter your email">
+    <button onclick="trackOrder()">Find My Print</button>
+    <div id="results"></div>
+</div>
+
+<script>
+    const sb = window.supabase.createClient("https://tottpqebhmuaemnngvrz.supabase.co", "YOUR_ANON_KEY_HERE");
+
+    async function trackOrder() {
+        const email = document.getElementById("lookup-email").value.trim();
+        const resDiv = document.getElementById("results");
+        if(!email) return;
+
+        const { data } = await sb.from("orders").select("*").eq("customer_email", email);
+
+        if(!data || data.length === 0) {
+            resDiv.innerHTML = "<p>No orders found.</p>";
+            return;
+        }
+
+        resDiv.innerHTML = "";
+        data.forEach(o => {
+            // Map status to percentage
+            let progress = 10;
+            if(o.status === 'Active') progress = 40;
+            if(o.status === 'Completed') progress = 80;
+            if(o.status === 'Delivered') progress = 100;
+
+            resDiv.innerHTML += `
+                <div class="status-card">
+                    <span class="badge ${o.payment_needed ? 'unpaid' : 'paid'}">${o.payment_needed ? 'UNPAID' : 'PAID'}</span>
+                    <h3 style="margin:0">${o.item_name}</h3>
+                    
+                    <div class="progress-container">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="steps">
+                        <span>Received</span>
+                        <span>Printing</span>
+                        <span>Ready</span>
+                        <span>Delivered</span>
+                    </div>
+
+                    <p style="margin-top: 15px; font-size: 14px; color: #9ca3af;">
+                        Current Stage: <b style="color:white">${o.status}</b><br>
+                        Material: ${o.material} | Cost: $${o.cost}
+                    </p>
+                </div>`;
+        });
+    }
+</script>
+</body>
+</html>
