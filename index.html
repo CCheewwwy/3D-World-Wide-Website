@@ -48,13 +48,11 @@
         #content { flex: 1; padding: 40px; overflow-y: auto; }
         #content-inner { max-width: 900px; margin: 0 auto; }
 
-        /* --- ORDER CARDS --- */
         .order-card { background: var(--bg-card); border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); cursor: pointer; position: relative; }
         .order-card:hover { border-color: rgba(255,255,255,0.2); }
         .order-body { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 14px; }
         .order-body.open { display: block; }
 
-        /* --- UI ELEMENTS --- */
         .id-pill { background: rgba(79, 70, 229, 0.15); color: #818cf8; padding: 2px 8px; border-radius: 6px; font-weight: bold; cursor: copy; border: 1px solid rgba(79, 70, 229, 0.3); }
         .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
         .pay-needed { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
@@ -104,24 +102,17 @@
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvdHRwcWViaG11YWVtbm5ndnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjA4NDAsImV4cCI6MjA5MzIzNjg0MH0.T4tjFt-_QcGlZtA4cfdQDmujWXBA8r9Z4SqeGpJ02hU"
     );
 
-    // --- AUTH LOGIC ---
     async function login() {
         const email = document.getElementById("login-email").value;
         const password = document.getElementById("login-password").value;
         const { error } = await sb.auth.signInWithPassword({ email, password });
-        
-        if (error) {
-            document.getElementById("login-error").innerText = "Login failed: " + error.message;
-        } else {
-            loadApp();
-        }
+        if (error) document.getElementById("login-error").innerText = "Login failed: " + error.message;
+        else loadApp();
     }
 
     async function checkUser() {
         const { data: { session } } = await sb.auth.getSession();
-        if (session) {
-            loadApp();
-        }
+        if (session) loadApp();
     }
 
     function loadApp() {
@@ -133,12 +124,8 @@
         showPage('active');
     }
 
-    async function logout() {
-        await sb.auth.signOut();
-        location.reload();
-    }
+    async function logout() { await sb.auth.signOut(); location.reload(); }
 
-    // --- NAVIGATION ---
     function showPage(page, el) {
         if (el) {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -148,7 +135,6 @@
         else loadOrders(page.charAt(0).toUpperCase() + page.slice(1));
     }
 
-    // --- UTILITIES ---
     function copyID(e, id) {
         e.stopPropagation();
         navigator.clipboard.writeText(id);
@@ -157,32 +143,38 @@
         setTimeout(() => { toast.style.transform = "translateY(100px)"; }, 2000);
     }
 
+    // --- FIXED EMAIL FUNCTION ---
     function sendThankYouEmail(e, email, orderID, itemName) {
         e.stopPropagation();
-        const subject = encodeURIComponent(`Your 3D World Wide Order: ${itemName}`);
+        
+        if (!email || email === "null" || email.trim() === "") {
+            alert("No email address found for this customer.");
+            return;
+        }
+
+        const subject = encodeURIComponent(`Order Confirmation: ${itemName}`);
         const body = encodeURIComponent(
-`Thank you for shopping with 3D World Wide!
+`Hi! 
 
-Your order for "${itemName}" has been placed, and will arrive as soon as possible.
+Thank you for your order of "${itemName}". 
 
-To track your order progress, visit: 3dworldwide.vercel.app/customer
-Your Order ID: ${orderID}
+You can track your order at: 3dworldwide.vercel.app/customer
+Your Order ID is: ${orderID}
 
-(You can copy and paste this ID into the tracking page to see real-time updates.)
-
-Best regards,
-3D World Wide Team`
+Thanks,
+3D World Wide`
         );
-        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+
+        // Using window.open for better mail client triggering
+        window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_self');
     }
 
-    // --- DATA OPERATIONS ---
     async function loadOrders(status) {
         const { data } = await sb.from("orders").select("*").eq("status", status).order("created_at", { ascending: false });
         let html = `<h2>${status} Orders</h2>`;
         
         if (!data || data.length === 0) {
-            html += `<p style="color:var(--text-muted)">No ${status.toLowerCase()} orders found.</p>`;
+            html += `<p style="color:var(--text-muted)">No ${status.toLowerCase()} orders.</p>`;
         } else {
             data.forEach(o => {
                 const payBadge = o.payment_needed ? `<span class="badge pay-needed">UNPAID</span>` : `<span class="badge pay-ok">PAID</span>`;
@@ -190,18 +182,17 @@ Best regards,
                     <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
-                                <strong style="font-size:18px;">${o.item_name || 'Unnamed Item'}</strong> ${payBadge}<br>
+                                <strong style="font-size:18px;">${o.item_name || 'Item'}</strong> ${payBadge}<br>
                                 <span style="font-size:13px; color:var(--text-muted)">
                                     ID: <span class="id-pill" onclick="copyID(event, '${o.order_id}')">#${o.order_id} 📋</span> 
-                                    | ${o.customer_name} | $${o.cost || 0}
+                                    | ${o.customer_name}
                                 </span>
                             </div>
                             <button class="btn-action btn-email" onclick="sendThankYouEmail(event, '${o.customer_email}', '${o.order_id}', '${o.item_name}')">✉️ Send Email</button>
                         </div>
                         <div class="order-body">
-                            <p><strong>Contact:</strong> ${o.customer_email} | ${o.phone || 'No phone provided'}</p>
-                            <p><strong>Specs:</strong> ${o.material} - ${o.color} (Qty: ${o.quantity || 1}) | Priority: ${o.priority || 'Normal'}</p>
-                            <p><strong>Notes:</strong> ${o.notes || 'None'}</p>
+                            <p><strong>Contact:</strong> ${o.customer_email || 'No Email'} | ${o.phone || 'No Phone'}</p>
+                            <p><strong>Specs:</strong> ${o.material} - ${o.color} (Qty: ${o.quantity}) | Priority: ${o.priority}</p>
                             <div style="margin-top:15px;">
                                 ${status === 'Active' ? `<button class="btn-action" style="background:var(--accent);" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Mark Completed</button>` : ''}
                                 ${status === 'Completed' ? `<button class="btn-action" style="background:var(--success);" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Delivered')">Mark Delivered</button>` : ''}
@@ -234,15 +225,14 @@ Best regards,
                     <input id="quantity" type="number" value="1">
                     <select id="priority"><option>Normal</option><option>High</option><option>Urgent</option></select>
                 </div>
-                <textarea id="notes" placeholder="Additional Notes..." rows="3"></textarea>
+                <textarea id="notes" placeholder="Notes..." rows="3"></textarea>
                 <button onclick="createOrder()">Submit Order</button>
             </div>`;
     }
 
     async function createOrder() {
-        const generatedId = Math.floor(100000 + Math.random() * 900000);
         const order = {
-            order_id: generatedId,
+            order_id: Math.floor(100000 + Math.random() * 900000),
             item_name: document.getElementById("item_name").value,
             customer_name: document.getElementById("name").value,
             customer_email: document.getElementById("email").value,
@@ -271,13 +261,9 @@ Best regards,
     }
 
     async function deleteOrder(id) {
-        if(confirm("Permanently delete this order?")) {
-            await sb.from("orders").delete().eq("id", id);
-            showPage('active');
-        }
+        if(confirm("Delete this order?")) { await sb.from("orders").delete().eq("id", id); showPage('active'); }
     }
 
-    // Check for session on load
     checkUser();
 </script>
 </body>
