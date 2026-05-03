@@ -143,11 +143,13 @@
         setTimeout(() => { toast.style.transform = "translateY(100px)"; }, 2000);
     }
 
-    // --- FIXED EMAIL FUNCTION ---
+    // --- REPAIRED EMAIL FUNCTION ---
     function sendThankYouEmail(e, email, orderID, itemName) {
         e.stopPropagation();
         
-        if (!email || email === "null" || email.trim() === "") {
+        console.log("Email requested for:", email); // Helpful for debugging
+
+        if (!email || email === "null" || email.trim() === "" || email === "undefined") {
             alert("No email address found for this customer.");
             return;
         }
@@ -165,8 +167,8 @@ Thanks,
 3D World Wide`
         );
 
-        // Using window.open for better mail client triggering
-        window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_self');
+        // Using location.href is the most reliable way to open mail apps
+        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
     }
 
     async function loadOrders(status) {
