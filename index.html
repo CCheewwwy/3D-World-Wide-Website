@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>3D World Wide | Admin Pro</title>
+    <title>3D World Wide | Pro Terminal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,123 +12,91 @@
             --bg-dark: #05070a;
             --bg-sidebar: #0a0f18;
             --accent-primary: #8b5cf6;
-            --accent-secondary: #ec4899;
             --glass: rgba(15, 23, 42, 0.6);
             --glass-border: rgba(255, 255, 255, 0.08);
             --text-main: #f1f5f9;
             --text-muted: #64748b;
             --success: #10b981;
             --danger: #ef4444;
+            --warning: #f59e0b;
         }
 
-        * { box-sizing: border-box; transition: all 0.25s ease; font-family: 'Inter', sans-serif; }
+        * { box-sizing: border-box; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
+        body { margin: 0; background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; }
 
-        body {
-            margin: 0; background: var(--bg-dark); color: var(--text-main);
-            height: 100vh; overflow: hidden;
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 40%);
-        }
-
-        /* --- Modern App Layout --- */
-        #app { display: none; height: 100vh; }
-
-        #sidebar { 
-            width: 260px; background: var(--bg-sidebar); padding: 40px 24px;
-            border-right: 1px solid var(--glass-border); display: flex; flex-direction: column;
-        }
-
-        .nav-brand {
-            font-weight: 800; font-size: 18px; letter-spacing: -0.5px; margin-bottom: 48px;
-            background: linear-gradient(to right, #fff, var(--text-muted));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        .nav-item { 
-            padding: 12px 16px; cursor: pointer; border-radius: 12px; 
-            color: var(--text-muted); margin-bottom: 6px; font-size: 14px; font-weight: 500;
-            display: flex; align-items: center; gap: 12px;
-        }
-
-        .nav-item:hover { background: rgba(255,255,255,0.03); color: white; }
-        .nav-item.active { background: rgba(139, 92, 246, 0.1); color: var(--accent-primary); border: 1px solid rgba(139, 92, 246, 0.2); }
-
-        #content { flex: 1; padding: 48px; overflow-y: auto; background: transparent; }
+        /* App Layout */
+        #app { display: none; height: 100vh; flex-direction: row; }
+        #sidebar { width: 260px; background: var(--bg-sidebar); padding: 40px 24px; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; }
+        #content { flex: 1; padding: 40px; overflow-y: auto; }
         #content-inner { max-width: 1100px; margin: 0 auto; }
 
-        h2 { font-weight: 700; font-size: 28px; letter-spacing: -0.02em; margin-bottom: 32px; }
+        /* Navigation */
+        .nav-brand { font-weight: 800; font-size: 18px; margin-bottom: 40px; background: linear-gradient(to right, #fff, #64748b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-item { padding: 12px 16px; cursor: pointer; border-radius: 12px; color: var(--text-muted); margin-bottom: 6px; font-size: 14px; display: flex; align-items: center; gap: 12px; }
+        .nav-item.active { background: rgba(139, 92, 246, 0.1); color: var(--accent-primary); border: 1px solid rgba(139, 92, 246, 0.2); }
 
-        /* --- Organized Order Cards --- */
-        .order-card { 
-            background: var(--glass); backdrop-filter: blur(16px);
-            border-radius: 16px; padding: 0; margin-bottom: 16px; 
-            border: 1px solid var(--glass-border); overflow: hidden;
-        }
+        /* Order Cards */
+        .order-card { background: var(--glass); backdrop-filter: blur(16px); border-radius: 16px; margin-bottom: 16px; border: 1px solid var(--glass-border); overflow: hidden; }
+        .card-main { padding: 20px 24px; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 0.5fr; align-items: center; gap: 15px; cursor: pointer; }
+        .card-details { max-height: 0; overflow: hidden; background: rgba(0,0,0,0.2); transition: max-height 0.3s ease-out; }
+        .card-details.open { max-height: 1200px; padding: 24px; border-top: 1px solid var(--glass-border); }
 
-        .order-card:hover { border-color: rgba(139, 92, 246, 0.4); transform: translateY(-2px); }
+        /* Labels & Inputs */
+        .info-group label { display: block; font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.5px; }
+        .info-group span { font-weight: 600; font-size: 14px; color: #fff; }
+        
+        input, select, textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; margin-top: 5px; outline: none; }
+        input:focus { border-color: var(--accent-primary); }
 
-        .card-main { padding: 24px; display: grid; grid-template-columns: 1fr 1fr 1fr auto; align-items: center; gap: 20px; cursor: pointer; }
+        /* Badges */
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .rush-badge { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .pay-badge { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
 
-        .info-group label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px; }
-        .info-group span { font-weight: 600; font-size: 14px; display: block; }
+        /* Buttons */
+        .btn-prime { background: var(--accent-primary); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px; }
+        .action-area { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-sub { background: transparent; border: 1px solid var(--glass-border); color: var(--text-muted); padding: 10px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+        .btn-sub:hover { border-color: var(--danger); color: var(--danger); }
 
-        .id-badge { font-family: monospace; font-size: 11px; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px; color: var(--accent-primary); }
-
-        .card-details { 
-            max-height: 0; overflow: hidden; background: rgba(0,0,0,0.2);
-            border-top: 0 solid var(--glass-border);
-        }
-        .card-details.open { max-height: 500px; padding: 24px; border-top-width: 1px; }
-
-        /* --- Utilities --- */
-        .btn-prime { background: var(--accent-primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        .btn-outline { background: transparent; border: 1px solid var(--glass-border); color: var(--text-muted); padding: 10px 20px; border-radius: 8px; cursor: pointer; }
-        .btn-outline:hover { color: var(--danger); border-color: var(--danger); }
-
-        /* Responsive Mobile Layout */
+        /* Mobile Scaling */
         @media (max-width: 768px) {
             #app { flex-direction: column; }
-            #sidebar { 
-                position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
-                flex-direction: row; padding: 0 10px; border-top: 1px solid var(--glass-border);
-                justify-content: space-around; align-items: center; z-index: 1000;
-            }
-            .nav-brand, .sidebar-user, .nav-item p { display: none; }
-            .nav-item { flex-direction: column; padding: 10px; margin: 0; }
-            #content { padding: 20px 20px 100px 20px; }
-            .card-main { grid-template-columns: 1fr auto; gap: 10px; }
+            #sidebar { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; flex-direction: row; padding: 10px; border-top: 1px solid var(--glass-border); justify-content: space-around; z-index: 1000; background: var(--bg-sidebar); }
+            .nav-brand, .nav-item p { display: none; }
+            #content { padding: 20px; padding-bottom: 90px; }
+            .card-main { grid-template-columns: 1fr 1fr; gap: 10px; }
             .hide-mobile { display: none; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr !important; }
         }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<div id="login-screen" style="display:flex; height:100vh; align-items:center; justify-content:center;">
-    <div style="background:var(--glass); border:1px solid var(--glass-border); padding:40px; border-radius:24px; width:100%; max-width:380px; text-align:center; backdrop-filter:blur(20px);">
-        <h2 style="margin-top:0">Welcome Back</h2>
-        <input id="login-email" type="email" placeholder="Email" style="width:100%; padding:14px; margin-bottom:12px; background:rgba(0,0,0,0.3); border:1px solid var(--glass-border); border-radius:12px; color:white;">
-        <input id="login-password" type="password" placeholder="Password" style="width:100%; padding:14px; margin-bottom:24px; background:rgba(0,0,0,0.3); border:1px solid var(--glass-border); border-radius:12px; color:white;">
-        <button onclick="login()" class="btn-prime" style="width:100%; padding:14px;">Access Terminal</button>
-        <p id="login-error" style="color:var(--danger); font-size:12px; margin-top:10px;"></p>
+<div id="login-screen" style="display:flex; height:100vh; align-items:center; justify-content:center; background:#020617;">
+    <div style="background:var(--glass); border:1px solid var(--glass-border); padding:40px; border-radius:24px; width:90%; max-width:380px; text-align:center; backdrop-filter:blur(20px);">
+        <h2 style="margin:0 0 24px 0;">3D Terminal</h2>
+        <input id="login-email" type="email" placeholder="Admin Email">
+        <input id="login-password" type="password" placeholder="Password">
+        <button onclick="login()" class="btn-prime">Initialize</button>
+        <p id="login-error" style="color:var(--danger); font-size:12px; margin-top:15px;"></p>
     </div>
 </div>
 
 <div id="app">
     <div id="sidebar">
         <div class="nav-brand">3D WORLD WIDE</div>
-        <div class="nav-item active" onclick="showPage('active', this)"><span>✦</span><p style="margin:0">Active Queue</p></div>
-        <div class="nav-item" onclick="showPage('create', this)"><span>✚</span><p style="margin:0">New Project</p></div>
-        <div class="nav-item" onclick="showPage('completed', this)"><span>✔</span><p style="margin:0">Completed</p></div>
-        <div class="nav-item" onclick="showPage('delivered', this)"><span>📦</span><p style="margin:0">Delivered</p></div>
-        
+        <div class="nav-item active" onclick="showPage('active', this)"><span>✦</span><p style="margin:0">Active</p></div>
+        <div class="nav-item" onclick="showPage('create', this)"><span>✚</span><p style="margin:0">New Order</p></div>
+        <div class="nav-item" onclick="showPage('completed', this)"><span>✔</span><p style="margin:0">Done</p></div>
+        <div class="nav-item" onclick="showPage('delivered', this)"><span>🚚</span><p style="margin:0">Delivered</p></div>
         <div style="flex:1"></div>
         <div class="nav-item" onclick="logout()" style="color:var(--danger)"><span>⎋</span><p style="margin:0">Sign Out</p></div>
     </div>
-    
-    <div id="content">
-        <div id="content-inner"></div>
-    </div>
+    <div id="content"><div id="content-inner"></div></div>
 </div>
 
 <script>
@@ -156,44 +124,54 @@
         let html = `<h2>${status} Orders</h2>`;
         
         if (!data || data.length === 0) {
-            html += `<div style="text-align:center; padding:100px 0; color:var(--text-muted)">Terminal is empty</div>`;
+            html += `<div style="text-align:center; padding:80px; color:var(--text-muted)">No orders in this sector.</div>`;
         } else {
             data.forEach(o => {
+                const rushTag = o.rush ? `<span class="badge rush-badge">RUSH</span>` : '';
+                const payTag = o.payment_needed ? `<span class="badge pay-badge">UNPAID</span>` : '';
+                
                 html += `
                 <div class="order-card">
                     <div class="card-main" onclick="this.nextElementSibling.classList.toggle('open')">
                         <div class="info-group">
-                            <label>Client</label>
-                            <span>${o.customer_name} <span class="id-badge">#${o.order_id}</span></span>
+                            <label>Client & ID</label>
+                            <span>${o.customer_name} <small style="color:var(--accent-primary); font-family:monospace;">#${o.order_id}</small></span>
                         </div>
                         <div class="info-group hide-mobile">
-                            <label>Product</label>
-                            <span>${o.item_name || 'Generic Print'}</span>
+                            <label>Item</label>
+                            <span>${o.item_name || 'Generic'}</span>
                         </div>
                         <div class="info-group hide-mobile">
-                            <label>Specs</label>
-                            <span>${o.material} • ${o.color}</span>
+                            <label>Priority</label>
+                            <span style="color:${o.priority === 'High' ? 'var(--danger)' : 'white'}">${o.priority || 'Normal'}</span>
+                        </div>
+                        <div class="info-group hide-mobile">
+                            <label>Price</label>
+                            <span style="color:var(--success)">$${o.cost}</span>
                         </div>
                         <div style="text-align:right">
-                            <span style="color:var(--success); font-weight:700">$${o.cost}</span>
+                            ${rushTag} ${payTag}
                         </div>
                     </div>
                     <div class="card-details">
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin-bottom:24px;">
-                            <div>
-                                <label style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:8px;">CONTACT INFO</label>
-                                <div style="font-size:13px;">${o.customer_email}</div>
-                                <div style="font-size:13px;">${o.phone}</div>
-                            </div>
-                            <div>
-                                <label style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:8px;">INTERNAL NOTES</label>
-                                <div style="font-size:13px;">${o.notes || 'No notes provided'}</div>
-                            </div>
+                        <div class="grid-3">
+                            <div class="info-group"><label>Email</label><span>${o.customer_email}</span></div>
+                            <div class="info-group"><label>Phone</label><span>${o.phone}</span></div>
+                            <div class="info-group"><label>Quantity</label><span>${o.quantity || 1}</span></div>
                         </div>
-                        <div style="display:flex; gap:12px;">
-                            ${status === 'Active' ? `<button class="btn-prime" onclick="updateStatus('${o.id}', 'Completed')">Complete Order</button>` : ''}
-                            ${status === 'Completed' ? `<button class="btn-prime" onclick="updateStatus('${o.id}', 'Delivered')">Ship Order</button>` : ''}
-                            <button class="btn-outline" onclick="deleteOrder('${o.id}')">Remove</button>
+                        <div class="grid-3">
+                            <div class="info-group"><label>Print Type</label><span>${o.print_type || 'FDM'}</span></div>
+                            <div class="info-group"><label>Material</label><span>${o.material}</span></div>
+                            <div class="info-group"><label>Color</label><span>${o.color}</span></div>
+                        </div>
+                        <div style="margin-top:15px;">
+                            <label style="font-size:10px; color:var(--text-muted);">NOTES</label>
+                            <p style="font-size:13px; margin:5px 0;">${o.notes || 'No internal notes.'}</p>
+                        </div>
+                        <div class="action-area">
+                            ${status === 'Active' ? `<button class="btn-prime" style="margin:0; flex:1;" onclick="updateStatus('${o.id}', 'Completed')">Mark Done</button>` : ''}
+                            ${status === 'Completed' ? `<button class="btn-prime" style="margin:0; flex:1;" onclick="updateStatus('${o.id}', 'Delivered')">Mark Delivered</button>` : ''}
+                            <button class="btn-sub" onclick="deleteOrder('${o.id}')">Delete</button>
                         </div>
                     </div>
                 </div>`;
@@ -204,27 +182,58 @@
 
     function renderCreateOrder() {
         document.getElementById("content-inner").innerHTML = `
-            <h2>Initialize New Order</h2>
-            <div style="background:var(--glass); padding:32px; border-radius:24px; border:1px solid var(--glass-border);">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-                    <div class="info-group"><label>Order Item</label><input id="item_name" style="width:100%; padding:12px; background:rgba(0,0,0,0.2); border:1px solid var(--glass-border); border-radius:8px; color:white;"></div>
-                    <div class="info-group"><label>Customer Name</label><input id="name" style="width:100%; padding:12px; background:rgba(0,0,0,0.2); border:1px solid var(--glass-border); border-radius:8px; color:white;"></div>
+            <h2>New Order Entry</h2>
+            <div style="background:var(--glass); padding:30px; border-radius:20px; border:1px solid var(--glass-border);">
+                <div class="grid-2">
+                    <div class="info-group"><label>item_name (Lowercase)</label><input id="item_name"></div>
+                    <div class="info-group"><label>Customer Name</label><input id="name"></div>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:20px;">
-                    <div class="info-group"><label>Email</label><input id="email" style="width:100%; padding:12px; background:rgba(0,0,0,0.2); border:1px solid var(--glass-border); border-radius:8px; color:white;"></div>
-                    <div class="info-group"><label>Cost ($)</label><input id="cost" type="number" style="width:100%; padding:12px; background:rgba(0,0,0,0.2); border:1px solid var(--glass-border); border-radius:8px; color:white;"></div>
+                <div class="grid-3">
+                    <div class="info-group"><label>Email</label><input id="email"></div>
+                    <div class="info-group"><label>Phone</label><input id="phone"></div>
+                    <div class="info-group"><label>Order ID (Numeric)</label><input id="order_id" type="number"></div>
                 </div>
-                <button onclick="createOrder()" class="btn-prime" style="margin-top:32px; width:100%;">Create Entry</button>
+                <div class="grid-3">
+                    <div class="info-group"><label>Print Type</label><input id="print_type" placeholder="e.g. Resin, FDM"></div>
+                    <div class="info-group"><label>Material</label><input id="material"></div>
+                    <div class="info-group"><label>Color</label><input id="color"></div>
+                </div>
+                <div class="grid-3">
+                    <div class="info-group"><label>Quantity</label><input id="quantity" type="number" value="1"></div>
+                    <div class="info-group"><label>Priority</label>
+                        <select id="priority">
+                            <option value="Normal">Normal</option>
+                            <option value="High">High</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    <div class="info-group"><label>Cost ($)</label><input id="cost" type="number" step="0.01"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="info-group"><label>Rush Order?</label><select id="rush"><option value="false">No</option><option value="true">Yes</option></select></div>
+                    <div class="info-group"><label>Payment Needed?</label><select id="payment_needed"><option value="true">Yes</option><option value="false">No</option></select></div>
+                </div>
+                <div class="info-group"><label>Notes</label><textarea id="notes" rows="3"></textarea></div>
+                <button onclick="createOrder()" class="btn-prime">Create Order</button>
             </div>`;
     }
 
     async function createOrder() {
         const order = {
-            order_id: Math.floor(100000 + Math.random() * 900000),
-            item_name: document.getElementById("item_name").value,
+            item_name: document.getElementById("item_name").value.toLowerCase(),
             customer_name: document.getElementById("name").value,
             customer_email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
+            order_id: parseInt(document.getElementById("order_id").value),
+            print_type: document.getElementById("print_type").value,
+            material: document.getElementById("material").value,
+            color: document.getElementById("color").value,
+            quantity: document.getElementById("quantity").value,
+            priority: document.getElementById("priority").value,
             cost: parseFloat(document.getElementById("cost").value) || 0,
+            rush: document.getElementById("rush").value === "true",
+            payment_needed: document.getElementById("payment_needed").value === "true",
+            notes: document.getElementById("notes").value,
             status: "Active"
         };
         await sb.from("orders").insert(order);
@@ -232,12 +241,14 @@
     }
 
     async function updateStatus(id, newStatus) {
-        await sb.from("orders").update({ status: newStatus }).eq("id", id);
+        const updateData = { status: newStatus };
+        if (newStatus === 'Delivered') updateData.delivered_at = new Date().toISOString();
+        await sb.from("orders").update(updateData).eq("id", id);
         showPage(newStatus.toLowerCase());
     }
 
     async function deleteOrder(id) {
-        if(confirm("Confirm Deletion?")) { 
+        if(confirm("Permanently delete this order record?")) { 
             await sb.from("orders").delete().eq("id", id); 
             showPage('active'); 
         }
@@ -253,8 +264,6 @@
     }
 
     async function logout() { await sb.auth.signOut(); location.reload(); }
-    
-    // Check session on load
     sb.auth.getSession().then(({data:{session}}) => { if(session) loadApp(); });
 </script>
 </body>
