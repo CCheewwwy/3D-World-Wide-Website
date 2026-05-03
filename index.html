@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <title>3D World Wide Admin Panel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
     <style>
@@ -24,116 +22,55 @@
         * { box-sizing: border-box; transition: 0.2s ease; }
 
         body {
-            margin: 0;
-            font-family: "Inter", system-ui, sans-serif;
+            margin: 0; font-family: "Inter", sans-serif;
             background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #000 100%);
-            color: var(--text-main);
-            overflow: hidden;
-            height: 100vh;
+            color: var(--text-main); height: 100vh; overflow: hidden;
         }
 
-        /* --- LOGIN SCREEN --- */
-        #login-screen {
-            display: flex; height: 100vh; align-items: center; justify-content: center;
-            background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.35), transparent 55%), #020617;
-        }
-        #login-box {
-            background: radial-gradient(circle at top, #111827, #020617);
-            padding: 35px; border-radius: 18px; width: 360px;
-            box-shadow: 0 0 0 1px var(--border), 0 24px 60px rgba(0, 0, 0, 0.8);
-            text-align: center;
-        }
+        /* --- UI COMPONENTS --- */
+        #login-screen { display: flex; height: 100vh; align-items: center; justify-content: center; }
+        #login-box { background: #111827; padding: 35px; border-radius: 18px; width: 360px; text-align: center; border: 1px solid var(--border); }
+        
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(15, 23, 42, 0.8); color: white; outline: none; }
+        
+        button { width: 100%; padding: 12px; margin-top: 20px; background: var(--accent-gradient); border: none; color: white; border-radius: 30px; cursor: pointer; font-weight: 600; }
 
-        /* --- FORM ELEMENTS --- */
-        input, select, textarea {
-            width: 100%; padding: 12px; margin-top: 12px; border-radius: 10px;
-            border: 1px solid var(--border); background: rgba(15, 23, 42, 0.8);
-            color: var(--text-main); font-size: 14px; outline: none;
-        }
-        input:focus, textarea:focus { border-color: var(--accent); }
-
-        .checkbox-container {
-            display: flex; align-items: center; gap: 10px; margin-top: 15px;
-            background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;
-        }
-        .checkbox-container input { width: auto; margin-top: 0; cursor: pointer; }
-
-        button {
-            width: 100%; padding: 12px; margin-top: 20px; background: var(--accent-gradient);
-            border: none; color: white; border-radius: 30px; cursor: pointer; font-weight: 600;
-        }
-
-        /* --- APP LAYOUT --- */
         #app { display: none; height: 100vh; }
-        #sidebar {
-            width: 260px; background: #020617; padding: 25px 15px;
-            display: flex; flex-direction: column; border-right: 1px solid var(--border);
-        }
-        .nav-item {
-            padding: 12px 15px; cursor: pointer; border-radius: 10px;
-            color: var(--text-muted); margin-bottom: 5px; font-size: 14px;
-        }
-        .nav-item:hover, .nav-item.active { background: rgba(255, 255, 255, 0.08); color: white; }
+        #sidebar { width: 260px; background: #020617; padding: 25px 15px; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .nav-item { padding: 12px 15px; cursor: pointer; border-radius: 10px; color: var(--text-muted); margin-bottom: 5px; }
+        .nav-item.active { background: rgba(255, 255, 255, 0.08); color: white; }
 
         #content { flex: 1; padding: 40px; overflow-y: auto; }
-        #content-inner { max-width: 900px; margin: 0 auto; animation: fadeUp 0.5s ease; }
+        #content-inner { max-width: 900px; margin: 0 auto; }
 
-        /* --- ORDER CARDS --- */
-        .order-card {
-            background: var(--bg-card); border-radius: 14px; padding: 20px;
-            margin-bottom: 15px; border: 1px solid var(--border); cursor: pointer;
-            position: relative;
-        }
-        .order-card:hover { border-color: rgba(255,255,255,0.2); }
-        .order-header { display: flex; justify-content: space-between; align-items: center; }
+        .order-card { background: var(--bg-card); border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); cursor: pointer; }
         .order-body { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 14px; }
         .order-body.open { display: block; }
 
-        /* --- COPY ID PILL --- */
-        .id-pill {
-            display: inline-flex; align-items: center; gap: 5px;
-            background: rgba(79, 70, 229, 0.15); color: #818cf8;
-            padding: 2px 8px; border-radius: 6px; font-weight: bold;
-            cursor: copy; border: 1px solid rgba(79, 70, 229, 0.3);
-            margin-right: 5px;
-        }
-        .id-pill:hover { background: rgba(79, 70, 229, 0.25); color: #fff; }
+        .id-pill { background: rgba(79, 70, 229, 0.15); color: #818cf8; padding: 2px 8px; border-radius: 6px; font-weight: bold; cursor: copy; border: 1px solid rgba(79, 70, 229, 0.3); }
         
-        /* --- TOAST NOTIFICATION --- */
-        #toast {
-            position: fixed; bottom: 20px; right: 20px; background: var(--success);
-            color: white; padding: 10px 20px; border-radius: 8px; font-size: 13px;
-            font-weight: bold; transform: translateY(100px); transition: 0.3s; z-index: 1000;
-        }
+        .btn-action { width: auto; margin-top: 0; margin-right: 8px; padding: 6px 14px; font-size: 12px; display: inline-block; border-radius: 6px; }
+        .btn-email { background: #3b82f6; color: white; text-decoration: none; display: inline-block; }
 
-        /* --- BADGES & BUTTONS --- */
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-        .status-active { background: rgba(79, 70, 229, 0.2); color: #818cf8; }
-        .pay-needed { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .pay-ok { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-        .btn-action { width: auto; margin-top: 0; margin-right: 8px; padding: 6px 14px; font-size: 12px; display: inline-block; }
-
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white; padding: 10px 20px; border-radius: 8px; transform: translateY(100px); transition: 0.3s; z-index: 1000; }
     </style>
 </head>
 <body>
 
-<div id="toast">ID Copied to Clipboard!</div>
+<div id="toast">Copied to Clipboard!</div>
 
 <div id="login-screen">
     <div id="login-box">
-        <h2 style="margin:0 0 10px 0;">3D Admin</h2>
+        <h2>3D Admin</h2>
         <input id="login-email" type="email" placeholder="Admin email">
         <input id="login-password" type="password" placeholder="Password">
         <button onclick="login()">Sign in</button>
-        <p id="login-error" style="font-size:12px; margin-top:15px;"></p>
     </div>
 </div>
 
 <div id="app">
     <div id="sidebar">
-        <h3 style="padding-left:15px;">3D World Wide</h3>
-        <p id="sidebar-user-email" style="font-size:12px; color:var(--text-muted); padding-left:15px; margin-bottom:25px;"></p>
+        <h3>3D World Wide</h3>
         <div class="nav-item active" onclick="showPage('active', this)">Active Orders</div>
         <div class="nav-item" onclick="showPage('create', this)">Create New Order</div>
         <div class="nav-item" onclick="showPage('completed', this)">Completed</div>
@@ -151,13 +88,12 @@
     );
 
     async function login() {
-        const email = document.getElementById("login-email").value;
-        const password = document.getElementById("login-password").value;
-        const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) { document.getElementById("login-error").innerText = "Invalid Credentials"; } else { loadApp(); }
+        const { error } = await sb.auth.signInWithPassword({
+            email: document.getElementById("login-email").value,
+            password: document.getElementById("login-password").value
+        });
+        if (error) alert("Login failed"); else loadApp();
     }
-
-    async function logout() { await sb.auth.signOut(); location.reload(); }
 
     function loadApp() {
         document.getElementById("login-screen").style.display = "none";
@@ -171,49 +107,60 @@
         else loadOrders(page.charAt(0).toUpperCase() + page.slice(1));
     }
 
-    // --- NEW COPY FUNCTION ---
     function copyID(e, id) {
-        e.stopPropagation(); // Prevents the card from opening/closing
+        e.stopPropagation();
         navigator.clipboard.writeText(id);
-        
         const toast = document.getElementById("toast");
         toast.style.transform = "translateY(0)";
         setTimeout(() => { toast.style.transform = "translateY(100px)"; }, 2000);
     }
 
+    // --- NEW EMAIL GENERATOR ---
+    function sendThankYouEmail(e, email, orderID, itemName) {
+        e.stopPropagation();
+        const subject = encodeURIComponent(`Your 3D World Wide Order: ${itemName}`);
+        const body = encodeURIComponent(
+`Thank you for shopping with 3D World Wide!
+
+Your order for "${itemName}" has been placed, and will arrive as soon as possible.
+
+To track your order progress, visit: 3dworldwide.vercel.app/customer
+Your Order ID: ${orderID}
+
+(You can copy and paste this ID into the tracking page to see real-time updates.)
+
+Best regards,
+3D World Wide Team`
+        );
+        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    }
+
     async function loadOrders(status) {
         const { data } = await sb.from("orders").select("*").eq("status", status).order("created_at", { ascending: false });
         let html = `<h2>${status} Orders</h2>`;
-        if (!data || data.length === 0) { html += `<p style="color:var(--text-muted)">No ${status.toLowerCase()} orders found.</p>`; }
-        else {
-            data.forEach(o => {
-                const payBadge = o.payment_needed ? `<span class="badge pay-needed">UNPAID</span>` : `<span class="badge pay-ok">PAID</span>`;
-                html += `
-                    <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
-                        <div class="order-header">
-                            <div>
-                                <strong style="font-size:18px; color:#fff;">${o.item_name || 'Unnamed'}</strong> ${payBadge}<br>
-                                <span style="font-size:13px; color:var(--text-muted)">
-                                    Order ID: <span class="id-pill" onclick="copyID(event, '${o.order_id}')">#${o.order_id} 📋</span> 
-                                    | Customer: ${o.customer_name} | Cost: $${o.cost || 0}
-                                </span>
-                            </div>
-                            <span class="badge status-active">${o.status}</span>
+        data?.forEach(o => {
+            html += `
+                <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <strong style="font-size:18px;">${o.item_name}</strong><br>
+                            <span style="font-size:13px; color:var(--text-muted)">
+                                ID: <span class="id-pill" onclick="copyID(event, '${o.order_id}')">#${o.order_id} 📋</span> 
+                                | ${o.customer_name}
+                            </span>
                         </div>
-                        <div class="order-body">
-                            <p><strong>Contact:</strong> ${o.customer_email} | ${o.phone}</p>
-                            <p><strong>Specs:</strong> ${o.material} - ${o.color} (Qty: ${o.quantity})</p>
-                            <p><strong>Notes:</strong> ${o.notes || "None"}</p>
-                            <div style="margin-top:15px;">
-                                ${status === 'Active' ? `<button class="btn-action" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Complete Order</button>` : ''}
-                                ${status === 'Completed' ? `<button class="btn-action" style="background:var(--accent-gradient); color:white;" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Delivered')">Mark Delivered</button>` : ''}
-                                ${o.payment_needed ? `<button class="btn-action" style="background:var(--success); color:white" onclick="event.stopPropagation(); markAsPaid('${o.id}')">Mark as Paid</button>` : ''}
-                                <button class="btn-action" style="background:rgba(239,68,68,0.2); color:#fca5a5" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
-                            </div>
+                        <button class="btn-action btn-email" onclick="sendThankYouEmail(event, '${o.customer_email}', '${o.order_id}', '${o.item_name}')">✉️ Send Email</button>
+                    </div>
+                    <div class="order-body">
+                        <p><strong>Email:</strong> ${o.customer_email} | <strong>Material:</strong> ${o.material}</p>
+                        <p><strong>Notes:</strong> ${o.notes || 'N/A'}</p>
+                        <div style="margin-top:10px;">
+                            <button class="btn-action" style="background:var(--success); color:white;" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Complete</button>
+                            <button class="btn-action" style="background:var(--danger); color:white;" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
                         </div>
-                    </div>`;
-            });
-        }
+                    </div>
+                </div>`;
+        });
         document.getElementById("content-inner").innerHTML = html;
     }
 
@@ -223,14 +170,11 @@
             <div style="background: var(--bg-card); padding: 25px; border-radius: 14px; border: 1px solid var(--border);">
                 <input id="item_name" placeholder="Item Name">
                 <input id="name" placeholder="Customer Name">
-                <div style="display:flex; gap:10px;">
-                    <input id="cost" type="number" step="0.01" placeholder="Cost ($)">
-                    <div class="checkbox-container"><input type="checkbox" id="payment_needed" checked><label for="payment_needed" style="font-size:13px;">Payment Needed?</label></div>
-                </div>
-                <div style="display:flex; gap:10px;"><input id="email" placeholder="Email"><input id="phone" placeholder="Phone"></div>
-                <div style="display:flex; gap:10px;"><input id="material" placeholder="Material"><input id="color" placeholder="Color"></div>
-                <div style="display:flex; gap:10px;"><input id="quantity" type="number" value="1"><select id="priority"><option>Normal</option><option>High</option><option>Urgent</option></select></div>
-                <textarea id="notes" placeholder="Additional Notes..." rows="3"></textarea>
+                <input id="email" placeholder="Customer Email">
+                <input id="cost" type="number" step="0.01" placeholder="Cost ($)">
+                <input id="material" placeholder="Material">
+                <input id="color" placeholder="Color">
+                <textarea id="notes" placeholder="Notes..."></textarea>
                 <button onclick="createOrder()">Submit Order</button>
             </div>`;
     }
@@ -241,35 +185,26 @@
             order_id: generatedId,
             item_name: document.getElementById("item_name").value,
             customer_name: document.getElementById("name").value,
-            cost: parseFloat(document.getElementById("cost").value) || 0,
-            payment_needed: document.getElementById("payment_needed").checked,
             customer_email: document.getElementById("email").value,
-            phone: document.getElementById("phone").value,
+            cost: parseFloat(document.getElementById("cost").value) || 0,
             material: document.getElementById("material").value,
             color: document.getElementById("color").value,
-            quantity: parseInt(document.getElementById("quantity").value) || 1,
-            priority: document.getElementById("priority").value,
-            status: "Active",
-            notes: document.getElementById("notes").value
+            status: "Active"
         };
-        const { error } = await sb.from("orders").insert(order);
-        if(!error) showPage('active'); else alert(error.message);
+        await sb.from("orders").insert(order);
+        showPage('active');
     }
 
     async function updateStatus(id, newStatus) {
         await sb.from("orders").update({ status: newStatus }).eq("id", id);
-        showPage(newStatus.toLowerCase());
-    }
-
-    async function markAsPaid(id) {
-        await sb.from("orders").update({ payment_needed: false }).eq("id", id);
         showPage('active');
     }
 
     async function deleteOrder(id) {
-        if(confirm("Permanently delete this order?")) { await sb.from("orders").delete().eq("id", id); showPage('active'); }
+        if(confirm("Delete?")) { await sb.from("orders").delete().eq("id", id); showPage('active'); }
     }
 
+    function logout() { sb.auth.signOut(); location.reload(); }
     sb.auth.getSession().then(({ data }) => { if (data.session) loadApp(); });
 </script>
 </body>
