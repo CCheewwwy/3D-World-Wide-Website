@@ -147,8 +147,6 @@
     function sendThankYouEmail(e, email, orderID, itemName) {
         e.stopPropagation();
         
-        console.log("Email requested for:", email); // Helpful for debugging
-
         if (!email || email === "null" || email.trim() === "" || email === "undefined") {
             alert("No email address found for this customer.");
             return;
@@ -167,10 +165,17 @@ Thanks,
 3D World Wide`
         );
 
-        // Using location.href is the most reliable way to open mail apps
-        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        // Create a temporary link element
+        const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
+        const tempLink = document.createElement('a');
+        tempLink.href = mailtoLink;
+        
+        // Append to body, click it, and remove it
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
     }
-
+    
     async function loadOrders(status) {
         const { data } = await sb.from("orders").select("*").eq("status", status).order("created_at", { ascending: false });
         let html = `<h2>${status} Orders</h2>`;
