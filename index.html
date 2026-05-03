@@ -2,99 +2,169 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>3D World Wide Admin Panel</title>
+    <title>3D World Wide | Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --bg-dark: #020617;
-            --bg-card: #0f172a;
-            --accent: #4f46e5;
-            --accent-gradient: linear-gradient(135deg, #4f46e5, #22c55e);
-            --text-main: #e5e7eb;
-            --text-muted: #9ca3af;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-sidebar: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.5);
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #f43f5e;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
-        * { box-sizing: border-box; transition: 0.2s ease; }
+        * { box-sizing: border-box; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
 
         body {
-            margin: 0; font-family: "Inter", sans-serif;
-            background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #000 100%);
+            margin: 0; font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #020617;
             color: var(--text-main); height: 100vh; overflow: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
         }
 
+        /* --- Login Screen --- */
         #login-screen { display: flex; height: 100vh; align-items: center; justify-content: center; }
         #login-box { 
-            background: #111827; padding: 35px; border-radius: 18px; width: 360px; 
-            text-align: center; border: 1px solid var(--border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px);
+            padding: 40px; border-radius: 24px; width: 400px; 
+            text-align: center; border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
         
-        input, select, textarea { width: 100%; padding: 12px; margin-top: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(15, 23, 42, 0.8); color: white; outline: none; }
+        input, select, textarea { 
+            width: 100%; padding: 14px; margin-top: 12px; border-radius: 12px; 
+            border: 1px solid var(--border); background: rgba(2, 6, 23, 0.5); 
+            color: white; outline: none; font-size: 14px;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
         
-        button { width: 100%; padding: 12px; margin-top: 20px; background: var(--accent-gradient); border: none; color: white; border-radius: 30px; cursor: pointer; font-weight: 600; }
+        button { 
+            width: 100%; padding: 14px; margin-top: 24px; background: var(--accent-gradient); 
+            border: none; color: white; border-radius: 12px; cursor: pointer; 
+            font-weight: 700; letter-spacing: 0.5px;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4); }
+        button:active { transform: translateY(0); }
 
+        /* --- App Layout --- */
         #app { display: none; height: 100vh; }
-        #sidebar { width: 260px; background: #020617; padding: 25px 15px; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .nav-item { padding: 12px 15px; cursor: pointer; border-radius: 10px; color: var(--text-muted); margin-bottom: 5px; font-size: 14px; }
-        .nav-item.active { background: rgba(255, 255, 255, 0.08); color: white; }
+        #sidebar { 
+            width: 280px; background: var(--bg-sidebar); padding: 30px 20px; 
+            border-right: 1px solid var(--border); display: flex; flex-direction: column; 
+        }
+        .nav-item { 
+            padding: 14px 18px; cursor: pointer; border-radius: 12px; 
+            color: var(--text-muted); margin-bottom: 8px; font-size: 14px; font-weight: 500;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+        .nav-item.active { background: var(--accent); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
 
-        #content { flex: 1; padding: 40px; overflow-y: auto; }
-        #content-inner { max-width: 900px; margin: 0 auto; }
+        #content { flex: 1; padding: 50px; overflow-y: auto; }
+        #content-inner { max-width: 1000px; margin: 0 auto; }
 
-        .order-card { background: var(--bg-card); border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); cursor: pointer; position: relative; }
-        .order-card:hover { border-color: rgba(255,255,255,0.2); }
-        .order-body { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); font-size: 14px; }
-        .order-body.open { display: block; }
-
-        .id-pill { background: rgba(79, 70, 229, 0.15); color: #818cf8; padding: 2px 8px; border-radius: 6px; font-weight: bold; cursor: copy; border: 1px solid rgba(79, 70, 229, 0.3); }
-        .badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 5px; }
-        .pay-needed { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .pay-ok { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-        .rush-badge { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        /* --- Order Cards --- */
+        .order-card { 
+            background: var(--bg-card); backdrop-filter: blur(8px);
+            border-radius: 20px; padding: 24px; margin-bottom: 20px; 
+            border: 1px solid var(--border); cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .order-card:hover { border-color: var(--accent); transform: scale(1.01); }
         
-        .btn-action { width: auto; margin-top: 0; margin-right: 8px; padding: 6px 14px; font-size: 12px; display: inline-block; border-radius: 6px; }
+        .order-header { display: flex; justify-content: space-between; align-items: flex-start; }
         
-        .checkbox-group { display: flex; gap: 10px; margin-top: 12px; }
-        .checkbox-container { flex: 1; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; border: 1px solid var(--border); }
-        .checkbox-container input { width: auto; margin-top: 0; cursor: pointer; }
+        .order-body { 
+            max-height: 0; overflow: hidden; opacity: 0;
+            margin-top: 0; padding-top: 0; border-top: 1px solid var(--border); font-size: 14px;
+        }
+        .order-body.open { max-height: 500px; opacity: 1; margin-top: 20px; padding-top: 20px; }
 
-        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white; padding: 10px 20px; border-radius: 8px; transform: translateY(100px); transition: 0.3s; z-index: 1000; font-size: 13px; font-weight: bold; }
+        /* --- Pills & Badges --- */
+        .id-pill { 
+            background: rgba(255,255,255,0.05); color: var(--accent); padding: 4px 10px; 
+            border-radius: 8px; font-weight: 600; font-family: monospace; 
+            border: 1px solid var(--border); margin-left: 8px;
+        }
+        .badge { padding: 5px 14px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .pay-needed { background: rgba(244, 63, 94, 0.1); color: var(--danger); border: 1px solid rgba(244, 63, 94, 0.2); }
+        .pay-ok { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .rush-badge { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+        
+        .btn-action { 
+            width: auto; margin-top: 0; margin-right: 10px; padding: 8px 16px; 
+            font-size: 12px; border-radius: 8px; font-weight: 600;
+        }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+        .checkbox-container { 
+            flex: 1; display: flex; align-items: center; gap: 12px; 
+            background: rgba(2, 6, 23, 0.3); padding: 14px; border-radius: 12px; border: 1px solid var(--border); 
+        }
+        .checkbox-container input { width: 18px; height: 18px; margin-top: 0; }
+
+        #toast { 
+            position: fixed; bottom: 30px; right: 30px; background: var(--success); 
+            color: white; padding: 12px 24px; border-radius: 12px; 
+            transform: translateY(150px); box-shadow: 0 10px 15px rgba(0,0,0,0.3);
+            font-weight: 600; z-index: 1000;
+        }
+
+        h2 { font-weight: 700; font-size: 28px; margin-bottom: 30px; letter-spacing: -0.5px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     </style>
 </head>
 <body>
 
-<div id="toast">Copied to Clipboard!</div>
+<div id="toast">ID Copied to Clipboard!</div>
 
 <div id="login-screen">
     <div id="login-box">
-        <h2 style="margin:0 0 10px 0;">3D Admin</h2>
+        <div style="font-size: 32px; margin-bottom: 10px;">📦</div>
+        <h2 style="margin:0 0 20px 0;">3D Admin Panel</h2>
         <input id="login-email" type="email" placeholder="Admin email">
         <input id="login-password" type="password" placeholder="Password">
-        <button onclick="login()">Sign in</button>
+        <button onclick="login()">Enter Dashboard</button>
         <p id="login-error" style="font-size:12px; margin-top:15px; color:var(--danger);"></p>
     </div>
 </div>
 
 <div id="app">
     <div id="sidebar">
-        <h3 style="padding-left:15px;">3D World Wide</h3>
-        <p id="sidebar-user-email" style="font-size:11px; color:var(--text-muted); padding-left:15px; margin-bottom:25px;"></p>
-        <div class="nav-item active" onclick="showPage('active', this)">Active Orders</div>
-        <div class="nav-item" onclick="showPage('create', this)">Create New Order</div>
-        <div class="nav-item" onclick="showPage('completed', this)">Completed</div>
-        <div class="nav-item" onclick="showPage('delivered', this)">Delivered</div>
+        <h2 style="font-size: 20px; padding-left: 15px; margin-bottom: 40px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">3D WORLD WIDE</h2>
+        
+        <div class="nav-item active" onclick="showPage('active', this)"><span>🔥</span> Active Orders</div>
+        <div class="nav-item" onclick="showPage('create', this)"><span>➕</span> Create Order</div>
+        <div class="nav-item" onclick="showPage('completed', this)"><span>✅</span> Completed</div>
+        <div class="nav-item" onclick="showPage('delivered', this)"><span>🚚</span> Delivered</div>
+        
         <div style="flex:1;"></div>
-        <div class="nav-item" onclick="logout()" style="color:var(--danger);">Logout</div>
+        
+        <div style="padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 10px;">
+            <p id="sidebar-user-email" style="font-size:11px; color:var(--text-muted); margin:0; overflow: hidden; text-overflow: ellipsis;"></p>
+        </div>
+        <div class="nav-item" onclick="logout()" style="color:var(--danger);"><span>🚪</span> Logout</div>
     </div>
     <div id="content"><div id="content-inner"></div></div>
 </div>
 
 <script>
+    // Config and Supabase initialization remains exactly as in your original file
     const sb = window.supabase.createClient(
         "https://tottpqebhmuaemnngvrz.supabase.co",
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvdHRwcWViaG11YWVtbm5ndnJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjA4NDAsImV4cCI6MjA5MzIzNjg0MH0.T4tjFt-_QcGlZtA4cfdQDmujWXBA8r9Z4SqeGpJ02hU"
@@ -104,7 +174,7 @@
         const email = document.getElementById("login-email").value;
         const password = document.getElementById("login-password").value;
         const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) document.getElementById("login-error").innerText = "Login failed: " + error.message;
+        if (error) document.getElementById("login-error").innerText = "Error: " + error.message;
         else loadApp();
     }
 
@@ -138,7 +208,7 @@
         navigator.clipboard.writeText(id);
         const toast = document.getElementById("toast");
         toast.style.transform = "translateY(0)";
-        setTimeout(() => { toast.style.transform = "translateY(100px)"; }, 2000);
+        setTimeout(() => { toast.style.transform = "translateY(150px)"; }, 2000);
     }
     
     async function loadOrders(status) {
@@ -146,32 +216,55 @@
         let html = `<h2>${status} Orders</h2>`;
         
         if (!data || data.length === 0) {
-            html += `<p style="color:var(--text-muted)">No ${status.toLowerCase()} orders.</p>`;
+            html += `<div style="text-align:center; padding: 100px 0; color:var(--text-muted)">
+                        <div style="font-size:40px; margin-bottom:10px;">☕</div>
+                        <p>No ${status.toLowerCase()} orders found.</p>
+                     </div>`;
         } else {
             data.forEach(o => {
-                const payBadge = o.payment_needed ? `<span class="badge pay-needed">UNPAID</span>` : `<span class="badge pay-ok">PAID</span>`;
-                const rushBadge = o.rush ? `<span class="badge rush-badge">RUSH</span>` : '';
+                const payBadge = o.payment_needed ? `<span class="badge pay-needed">Unpaid</span>` : `<span class="badge pay-ok">Paid</span>`;
+                const rushBadge = o.rush ? `<span class="badge rush-badge">Rush</span>` : '';
                 html += `
                     <div class="order-card" onclick="this.querySelector('.order-body').classList.toggle('open')">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div class="order-header">
                             <div>
-                                <strong style="font-size:18px;">${o.item_name || 'Item'}</strong> ${payBadge} ${rushBadge}<br>
-                                <span style="font-size:13px; color:var(--text-muted)">
-                                    ID: <span class="id-pill" onclick="copyID(event, '${o.order_id}')">#${o.order_id} 📋</span> 
-                                    | ${o.customer_name}
-                                </span>
+                                <div style="display:flex; align-items:center; margin-bottom:4px;">
+                                    <strong style="font-size:18px;">${o.item_name || 'Item'}</strong> 
+                                    <span class="id-pill" onclick="copyID(event, '${o.order_id}')">#${o.order_id}</span>
+                                </div>
+                                <span style="font-size:14px; color:var(--text-muted)">${o.customer_name}</span>
                             </div>
+                            <div>${rushBadge} ${payBadge}</div>
                         </div>
                         <div class="order-body">
-                            <p><strong>Contact:</strong> ${o.customer_email || 'No Email'} | ${o.phone || 'No Phone'}</p>
-                            <p><strong>Specs:</strong> ${o.print_type || 'N/A'} | ${o.material} - ${o.color} (Qty: ${o.quantity})</p>
-                            <p><strong>Cost:</strong> $${o.cost} | <strong>Priority:</strong> ${o.priority}</p>
-                            <p><strong>Notes:</strong> ${o.notes || 'None'}</p>
-                            <div style="margin-top:15px;">
+                            <div class="grid-2" style="margin-bottom:15px;">
+                                <div>
+                                    <p style="color:var(--text-muted); margin:0 0 5px 0; font-size:11px; text-transform:uppercase;">Contact Information</p>
+                                    <strong>${o.customer_email || 'No Email'}</strong><br>${o.phone || 'No Phone'}
+                                </div>
+                                <div>
+                                    <p style="color:var(--text-muted); margin:0 0 5px 0; font-size:11px; text-transform:uppercase;">Print Specifications</p>
+                                    <strong>${o.print_type || 'N/A'}</strong> | ${o.material} - ${o.color} (x${o.quantity})
+                                </div>
+                            </div>
+                            <div class="grid-2" style="margin-bottom:15px;">
+                                <div>
+                                    <p style="color:var(--text-muted); margin:0 0 5px 0; font-size:11px; text-transform:uppercase;">Financials</p>
+                                    <span style="font-size:18px; font-weight:700; color:var(--success)">$${o.cost}</span>
+                                </div>
+                                <div>
+                                    <p style="color:var(--text-muted); margin:0 0 5px 0; font-size:11px; text-transform:uppercase;">Priority</p>
+                                    <strong>${o.priority}</strong>
+                                </div>
+                            </div>
+                            <p style="color:var(--text-muted); margin:0 0 5px 0; font-size:11px; text-transform:uppercase;">Notes</p>
+                            <p style="background:rgba(0,0,0,0.2); padding:10px; border-radius:8px;">${o.notes || 'No notes provided.'}</p>
+                            
+                            <div style="margin-top:25px; display:flex; gap:10px;">
                                 ${status === 'Active' ? `<button class="btn-action" style="background:var(--accent);" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Completed')">Mark Completed</button>` : ''}
                                 ${status === 'Completed' ? `<button class="btn-action" style="background:var(--success);" onclick="event.stopPropagation(); updateStatus('${o.id}', 'Delivered')">Mark Delivered</button>` : ''}
                                 ${o.payment_needed ? `<button class="btn-action" style="background:var(--success);" onclick="event.stopPropagation(); markAsPaid('${o.id}')">Mark Paid</button>` : ''}
-                                <button class="btn-action" style="background:rgba(239, 68, 68, 0.2); color:#fca5a5" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
+                                <button class="btn-action btn-secondary" onclick="event.stopPropagation(); deleteOrder('${o.id}')">Delete</button>
                             </div>
                         </div>
                     </div>`;
@@ -182,34 +275,43 @@
 
     function renderCreateOrder() {
         document.getElementById("content-inner").innerHTML = `
-            <h2>Create New Order</h2>
-            <div style="background: var(--bg-card); padding: 25px; border-radius: 14px; border: 1px solid var(--border);">
-                <input id="item_name" placeholder="Item Name">
-                <input id="name" placeholder="Customer Name">
+            <h2>New Order Entry</h2>
+            <div style="background: var(--bg-card); padding: 30px; border-radius: 24px; border: 1px solid var(--border); backdrop-filter: blur(10px);">
+                <div class="grid-2">
+                    <input id="item_name" placeholder="Item Name">
+                    <input id="name" placeholder="Customer Name">
+                </div>
                 
-                <div class="checkbox-group">
+                <div style="display:flex; gap:15px; margin-top:10px;">
                     <div class="checkbox-container">
                         <input type="checkbox" id="payment_needed" checked>
-                        <label for="payment_needed" style="font-size:13px; color:var(--text-muted)">Payment Needed?</label>
+                        <label for="payment_needed" style="font-size:13px; font-weight:600;">Payment Needed</label>
                     </div>
                     <div class="checkbox-container">
                         <input type="checkbox" id="rush">
-                        <label for="rush" style="font-size:13px; color:var(--text-muted)">Rush Order?</label>
+                        <label for="rush" style="font-size:13px; font-weight:600;">Rush Order</label>
                     </div>
                 </div>
 
-                <div style="display:flex; gap:10px;"><input id="email" placeholder="Email"><input id="phone" placeholder="Phone"></div>
-                <div style="display:flex; gap:10px;"><input id="print_type" placeholder="Print Type (e.g. FDM, SLA)"><input id="cost" type="number" step="0.01" placeholder="Cost ($)"></div>
-                <div style="display:flex; gap:10px;"><input id="material" placeholder="Material"><input id="color" placeholder="Color"></div>
-                <div style="display:flex; gap:10px;">
+                <div class="grid-2"><input id="email" placeholder="Email"><input id="phone" placeholder="Phone"></div>
+                <div class="grid-2"><input id="print_type" placeholder="Print Type (FDM, SLA, etc)"><input id="cost" type="number" step="0.01" placeholder="Total Cost ($)"></div>
+                <div class="grid-2"><input id="material" placeholder="Material"><input id="color" placeholder="Color"></div>
+                
+                <div class="grid-2">
                     <input id="quantity" type="number" value="1" placeholder="Quantity">
-                    <select id="priority"><option>Normal</option><option>High</option><option>Urgent</option></select>
+                    <select id="priority">
+                        <option>Normal Priority</option>
+                        <option>High Priority</option>
+                        <option>Urgent</option>
+                    </select>
                 </div>
-                <textarea id="notes" placeholder="Notes..." rows="3"></textarea>
-                <button onclick="createOrder()">Submit Order</button>
+                
+                <textarea id="notes" placeholder="Additional instructions or notes..." rows="4"></textarea>
+                <button onclick="createOrder()">Create Order Entry</button>
             </div>`;
     }
 
+    // Logic Functions (Create, Update, Delete) are the same
     async function createOrder() {
         const order = {
             order_id: Math.floor(100000 + Math.random() * 900000),
@@ -245,7 +347,10 @@
     }
 
     async function deleteOrder(id) {
-        if(confirm("Delete this order?")) { await sb.from("orders").delete().eq("id", id); showPage('active'); }
+        if(confirm("Are you sure you want to delete this order?")) { 
+            await sb.from("orders").delete().eq("id", id); 
+            showPage('active'); 
+        }
     }
 
     checkUser();
