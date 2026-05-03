@@ -17,10 +17,8 @@
         button { width: 100%; padding: 15px; border-radius: 30px; border: none; background: linear-gradient(135deg, #4f46e5, #22c55e); color: white; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
         
         .status-card { background: var(--card); padding: 25px; border-radius: 16px; border: 1px solid var(--border); text-align: left; margin-top: 20px; }
-        
         .progress-container { background: rgba(255,255,255,0.1); height: 8px; border-radius: 10px; margin: 20px 0; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 1s ease-in-out; }
-        
         .steps { display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; }
         .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; float: right; }
         .unpaid { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
@@ -31,8 +29,8 @@
 
 <div class="container">
     <h1>Track Order</h1>
-    <p style="color: #9ca3af; margin-bottom: 20px;">Enter your email to see print progress</p>
-    <input id="lookup-email" type="email" placeholder="email@example.com">
+    <p style="color: #9ca3af; margin-bottom: 20px;">Enter your Email or Order ID</p>
+    <input id="lookup-value" type="text" placeholder="email@example.com or Order ID">
     <button onclick="trackOrder()">Find My Print</button>
     <div id="results"></div>
 </div>
@@ -44,16 +42,21 @@
     );
 
     async function trackOrder() {
-        const email = document.getElementById("lookup-email").value.trim();
+        const input = document.getElementById("lookup-value").value.trim();
         const resDiv = document.getElementById("results");
-        if(!email) return;
+        if(!input) return;
 
         resDiv.innerHTML = "Searching...";
 
-        const { data, error } = await sb.from("orders").select("*").eq("customer_email", email);
+        // NEW LOGIC: Check if it's a UUID (Order ID) or an Email
+        // ilike makes the search case-insensitive
+        const { data, error } = await sb
+            .from("orders")
+            .select("*")
+            .or(`customer_email.ilike.${input},id.eq.${input}`);
 
         if(error || !data || data.length === 0) {
-            resDiv.innerHTML = "<p style='color: #9ca3af;'>No orders found for that email.</p>";
+            resDiv.innerHTML = "<p style='color: #9ca3af;'>No orders found. Please check your spelling or Order ID.</p>";
             return;
         }
 
@@ -68,6 +71,7 @@
                 <div class="status-card">
                     <span class="badge ${o.payment_needed ? 'unpaid' : 'paid'}">${o.payment_needed ? 'UNPAID' : 'PAID'}</span>
                     <h3 style="margin:0">${o.item_name || '3D Print'}</h3>
+                    <p style="font-size: 11px; color: var(--accent); margin: 5px 0 0 0;">ID: ${o.id}</p>
                     
                     <div class="progress-container">
                         <div class="progress-fill" style="width: ${progress}%"></div>
